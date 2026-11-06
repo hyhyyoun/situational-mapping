@@ -97,6 +97,20 @@ td.code { color: var(--muted); white-space: nowrap; font-variant-numeric: tabula
 .rel .n { width: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .rel .t { flex: 1; min-width: 0; }
 
+.maptools { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 20px; margin-bottom: 12px; }
+.hint { color: var(--muted); }
+.hint.on { color: var(--accent); font-weight: 600; }
+.switch { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; white-space: nowrap; }
+.switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.switch .track { width: 38px; height: 22px; border-radius: 11px; background: #C9C6BD; position: relative; transition: background .15s; flex: none; }
+.switch .track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #FFF; transition: transform .15s; }
+.switch input:checked + .track { background: var(--accent); }
+.switch input:checked + .track::after { transform: translateX(16px); }
+.switch input:focus-visible + .track { outline: 2px solid var(--accent); outline-offset: 2px; }
+.overlay { position: fixed; inset: 0; z-index: 20; background: rgba(31,31,28,.35); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.pop { background: var(--panel); border-radius: 10px; padding: 20px; width: min(420px, 100%); box-shadow: 0 10px 40px rgba(0,0,0,.2); }
+.pair { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-bottom: 14px; padding: 10px 12px; background: var(--soft); border-radius: 6px; }
+@media (prefers-reduced-motion: reduce) { .switch .track, .switch .track::after { transition: none; } }
 .kv { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; }
 .kv b { font-variant-numeric: tabular-nums; text-align: right; }
 .listed { display: flex; flex-direction: column; gap: 8px; }
@@ -241,6 +255,7 @@ let team = ls.get("sm-team", "t1");
 let dragging = false;
 let selection = { aid: null, from: null, to: null };
 let relDraft = { verb: "", disputed: false };
+let showLabels = ls.get("sm-labels", "1") === "1";
 let pendingDelete = null; // {kind, id}
 
 const W = () => data.workshop || DEFAULT_WORKSHOP;
@@ -454,7 +469,9 @@ function renderMap() {
       const [x1, y1] = pos[r.from], [x2, y2] = pos[r.to];
       const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
       return `<g><line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#1F1F1C" stroke-width="2" ${r.disputed ? 'stroke-dasharray="7 5"' : ""}/>
-        <circle cx="${mx}" cy="${my}" r="11" fill="#FFF" stroke="#1F1F1C"/><text x="${mx}" y="${my + 4}" text-anchor="middle" font-size="11" font-weight="700" fill="#1F1F1C">${r.no}</text></g>`;
+        ${showLabels
+          ? `<text x="${mx}" y="${my - 6}" text-anchor="middle" font-size="12" fill="#2F5FD0" paint-order="stroke" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round"><tspan font-weight="700">${r.no}</tspan> ${esc(r.verb.length > 28 ? r.verb.slice(0, 27) + "…" : r.verb)}${r.disputed ? " ?" : ""}</text>`
+          : `<circle cx="${mx}" cy="${my}" r="11" fill="#FFF" stroke="#1F1F1C"/><text x="${mx}" y="${my + 4}" text-anchor="middle" font-size="11" font-weight="700" fill="#1F1F1C">${r.no}</text>`}</g>`;
     }).join("");
     const nodeSvg = nodes.map(({ e, p, x, y }) => {
       const cx = x * VB_W, cy = y * VB_H, h = S / 2;
@@ -474,25 +491,29 @@ function renderMap() {
       ${nodes.length ? "" : `<text x="${VB_W / 2}" y="${VB_H / 2}" text-anchor="middle" fill="#66645D" font-size="14">No elements in this assemblage yet</text>`}</svg></div>`;
   }).join("");
   const outside = els.filter((e) => e.placements?.[NONE]);
+  const f = selection.from && elById(selection.from);
+  const hint = !f ? "Click an element, then a second one in the same map, to connect them." : `${esc(placeCode(f, selection.aid) + " " + f.name)} selected. Now click a second element in the same map.`;
   $("#view").innerHTML = `<div class="maplayout"><div>
+      <div class="maptools"><span class="${f ? "hint on" : "hint"}">${hint}</span>
+        <label class="switch"><input type="checkbox" id="labelToggle" ${showLabels ? "checked" : ""}><span class="track" aria-hidden="true"></span>Show relations on lines</label></div>
       <div class="maps">${maps}</div>
       <div class="outside"><b class="muted">Not in any assemblage · A0</b>${outside.length ? outside.map((e) => `<span class="chip">${shapeIcon(e.type, e.placements[NONE].voice, 14, "#66645D")}${esc(placeCode(e, NONE) + " " + e.name)}</span>`).join("") : `<span class="muted">none</span>`}<span class="muted small" style="margin-left:auto">Listed only · cannot be connected</span></div>
-      <div class="legend"><span>${shapeIcon("H", "speaks", 14)}Human</span><span>${shapeIcon("N", "speaks", 14)}Nonhuman</span><span>Solid outline = has a voice</span><span>Dashed outline = silent</span><span>Dashed line = team disagrees</span><span>Drag to move · click two elements to connect</span></div>
+      <div class="legend"><span>${shapeIcon("H", "speaks", 14)}Human</span><span>${shapeIcon("N", "speaks", 14)}Nonhuman</span><span>Solid outline = has a voice</span><span>Dashed outline = silent</span><span>Dashed line = team disagrees</span><span>Drag to move · click two elements to connect · click the same pair again to edit</span></div>
     </div>
-    <div class="side">${relPanel()}${relList()}</div></div>`;
+    <div class="side">${relList()}</div></div>${relPopup()}`;
 }
-function relPanel() {
+function relPopup() {
   const f = selection.from && elById(selection.from), t = selection.to && elById(selection.to);
-  const lab = (e) => e ? `${esc(placeCode(e, selection.aid))} ${esc(e.name)}` : `<span class="muted">—</span>`;
-  const ok = f && t && relDraft.verb.trim();
-  return `<div class="card"><h2>New relation</h2>
-    <p class="muted" style="margin-top:0">${!f ? "Click an element on a map." : !t ? "Now click a second element in the same assemblage." : "Name the relation with a verb."}</p>
-    <div class="sel"><span class="muted small">From</span><b>${lab(f)}</b></div>
-    <div class="sel"><span class="muted small">To</span><b>${lab(t)}</b></div>
-    <div class="field"><label class="label" for="relVerb">Relation (a verb)</label><input id="relVerb" type="text" value="${esc(relDraft.verb)}" placeholder="e.g. depends on" ${f && t ? "" : "disabled"}></div>
+  if (!f || !t) return "";
+  const lab = (e) => `<b>${esc(placeCode(e, selection.aid))}</b> ${esc(e.name)}`;
+  return `<div class="overlay" id="relOverlay"><div class="pop" role="dialog" aria-modal="true" aria-labelledby="popTitle">
+    <h2 id="popTitle">${relDraft.editId ? "Edit relation" : "New relation"}</h2>
+    <div class="pair"><span>${lab(f)}</span><span class="muted">↔</span><span>${lab(t)}</span></div>
+    <div class="field"><label class="label" for="relVerb">Relation (a verb)</label><input id="relVerb" type="text" value="${esc(relDraft.verb)}" placeholder="e.g. depends on" autocomplete="off"></div>
     <label class="opts" style="margin-bottom:12px"><span><input type="checkbox" id="relDisp" ${relDraft.disputed ? "checked" : ""}> Team disagrees (dashed line)</span></label>
     <p class="muted small" id="relMsg" style="min-height:1em;margin:0 0 8px"></p>
-    <div class="formbtns"><button type="button" class="btn primary" id="relSave" ${ok ? "" : "disabled"}>Save relation</button><button type="button" class="btn ghost" id="relClear">Clear</button></div></div>`;
+    <div class="formbtns"><button type="button" class="btn primary" id="relSave" ${relDraft.verb.trim() ? "" : "disabled"}>${relDraft.editId ? "Save changes" : "Save relation"}</button><button type="button" class="btn ghost" id="relClear">Cancel</button></div>
+  </div></div>`;
 }
 function relList() {
   const rels = teamRelations();
@@ -509,15 +530,17 @@ function relList() {
   }).join("");
   return `<div class="card"><h2>Relations · ${rels.length}</h2>${groups || `<p class="muted">No lines yet.</p>`}</div>`;
 }
-function refreshSide() { const side = $(".side"); if (side) side.innerHTML = relPanel() + relList(); }
+function refreshSide() { const side = $(".side"); if (side) side.innerHTML = relList(); }
 async function saveRelation() {
   const { aid, from, to } = selection;
   const verb = relDraft.verb.trim();
   if (!aid || !from || !to || !verb) return;
-  const exists = data.relations.find((r) => r.team === team && r.assemblage === aid && ((r.from === from && r.to === to) || (r.from === to && r.to === from)));
-  if (exists) { const m = $("#relMsg"); if (m) m.textContent = `These two are already connected (line ${exists.no}). Delete that line first to change it.`; return; }
-  const no = 1 + Math.max(0, ...data.relations.filter((r) => r.team === team).map((r) => r.no || 0));
-  await store.addRelation({ team, assemblage: aid, from, to, verb, disputed: relDraft.disputed, no });
+  if (relDraft.editId) {
+    await store.updateRelation(relDraft.editId, { verb, disputed: relDraft.disputed });
+  } else {
+    const no = 1 + Math.max(0, ...data.relations.filter((r) => r.team === team).map((r) => r.no || 0));
+    await store.addRelation({ team, assemblage: aid, from, to, verb, disputed: relDraft.disputed, no });
+  }
   selection = { aid: null, from: null, to: null }; relDraft = { verb: "", disputed: false };
   renderMap();
 }
@@ -529,8 +552,12 @@ function clickNode(id, aid) {
   } else {
     selection.to = id;
   }
+  if (selection.to) {
+    const ex = data.relations.find((r) => r.team === team && r.assemblage === aid && ((r.from === selection.from && r.to === id) || (r.from === id && r.to === selection.from)));
+    relDraft = ex ? { verb: ex.verb, disputed: !!ex.disputed, editId: ex.id } : { verb: "", disputed: false };
+  }
   renderMap();
-  if (selection.to) $("#relVerb")?.focus();
+  if (selection.to) { const v = $("#relVerb"); v?.focus(); v?.select(); }
 }
 
 /* ----- tab 3: connections ----- */
@@ -610,6 +637,7 @@ function exportRelations() {
 
 /* ---------- events ---------- */
 document.addEventListener("click", (ev) => {
+  if (ev.target.id === "relOverlay") { selection = { aid: null, from: null, to: null }; relDraft = { verb: "", disputed: false }; renderMap(); return; }
   const el = ev.target.closest("button, [data-node]");
   if (!el) return;
   const d = el.dataset;
@@ -653,6 +681,7 @@ document.addEventListener("keydown", (ev) => {
   const n = ev.target.closest?.("[data-node]");
   if (n && (ev.key === "Enter" || ev.key === " ")) { ev.preventDefault(); clickNode(n.dataset.node, n.dataset.asm); }
   if (ev.target.id === "relVerb" && ev.key === "Enter") { ev.preventDefault(); saveRelation(); }
+  if (ev.key === "Escape" && $("#relOverlay")) { selection = { aid: null, from: null, to: null }; relDraft = { verb: "", disputed: false }; renderMap(); }
 });
 
 document.addEventListener("input", (ev) => {
@@ -669,6 +698,7 @@ document.addEventListener("change", (ev) => {
   if (t.dataset.chk) { form.checked[t.dataset.chk] = t.checked; renderForm(); return; }
   if (t.dataset.p && t.tagName === "SELECT") { (form.place[t.dataset.p] ||= blankPlace())[t.dataset.k] = t.value; renderForm(); return; }
   if (t.id === "relDisp") { relDraft.disputed = t.checked; return; }
+  if (t.id === "labelToggle") { showLabels = t.checked; ls.set("sm-labels", showLabels ? "1" : "0"); renderMap(); return; }
   // setup fields save on change
   if (t.id === "sitName") return saveW((w) => { w.situation = t.value.trim(); });
   if (t.dataset.teamName !== undefined) return saveW((w) => { w.teams[+t.dataset.teamName].name = t.value.trim() || "Team"; });
