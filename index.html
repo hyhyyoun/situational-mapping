@@ -54,6 +54,8 @@ h3 { font-size: 13px; margin: 0; letter-spacing: .04em; text-transform: uppercas
 .grid2 { display: grid; grid-template-columns: minmax(320px, 420px) minmax(0, 1fr); gap: 20px; align-items: start; }
 .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; align-items: start; }
 @media (max-width: 900px) { .grid2, .grid3 { grid-template-columns: minmax(0, 1fr); } }
+.countgrid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; align-items: start; }
+@media (max-width: 1000px) { .countgrid { grid-template-columns: minmax(0, 1fr); } }
 
 .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
 .field > .label { font-weight: 600; }
@@ -170,11 +172,11 @@ function makeDemoStore() {
   const P = (o) => Promise.resolve(o);
   // example data for the demo only
   const ex = [
-    ["H", 1, "Residents’ committee", { a2: { voice: "speaks", source: "Interview", where: "Interview 1", x: .2, y: .2 } }],
-    ["H", 2, "Data centre operator", { a1: { voice: "speaks", source: "News article", where: "Local news, 3 Oct", x: .2, y: .2 } }],
-    ["H", 3, "Future generations", { a2: { voice: "silent", source: "Team knowledge", x: .75, y: .85 } }],
-    ["N", 1, "Water", { a1: { voice: "silent", source: "Policy document", where: "Siting plan p.12", x: .65, y: .6 }, a2: { voice: "spoken", spokenBy: "Environmental group", source: "Interview", where: "Interview 3", x: .25, y: .75 } }],
-    ["N", 2, "Transmission tower", { a2: { voice: "spoken", spokenBy: "Residents", source: "Field observation", x: .7, y: .45 } }],
+    ["H", 1, "Residents’ committee", { a2: { voice: "speaks", source: "Interview", where: "Interview 1" } }],
+    ["H", 2, "Data centre operator", { a1: { voice: "speaks", source: "News article", where: "Local news, 3 Oct" } }],
+    ["H", 3, "Future generations", { a2: { voice: "silent", source: "Team knowledge" } }],
+    ["N", 1, "Water", { a1: { voice: "silent", source: "Policy document", where: "Siting plan p.12" }, a2: { voice: "spoken", spokenBy: "Environmental group", source: "Interview", where: "Interview 3" } }],
+    ["N", 2, "Transmission tower", { a2: { voice: "spoken", spokenBy: "Residents", source: "Field observation" } }],
     ["N", 3, "River ecosystem", { a0: { voice: "silent", source: "Team knowledge" } }]
   ];
   const ids = {};
@@ -417,18 +419,30 @@ async function submitForm() {
 
 /* ----- tab 2: map ----- */
 const VB_W = 600, VB_H = 480, S = 34;
+function ringSlots(n) {
+  // evenly spaced points on a circle, starting at the top; a second inner ring when crowded
+  const outer = Math.min(n, 14), inner = n - outer, slots = [];
+  for (let i = 0; i < outer; i++) { const t = -Math.PI / 2 + (2 * Math.PI * i) / outer; slots.push([0.5 + 0.38 * Math.cos(t), 0.47 + 0.37 * Math.sin(t)]); }
+  for (let i = 0; i < inner; i++) { const t = -Math.PI / 2 + Math.PI / inner + (2 * Math.PI * i) / inner; slots.push([0.5 + 0.19 * Math.cos(t), 0.47 + 0.18 * Math.sin(t)]); }
+  return slots;
+}
 function layoutDefaults(list) {
-  // elements nobody has moved yet go to the first free grid slot
+  // elements nobody has moved yet sit on a circle, so any two can be joined without crossing the others
   const taken = list.filter(({ p }) => typeof p.x === "number" && typeof p.y === "number").map(({ p }) => [p.x, p.y]);
-  const slots = [];
-  for (let r = 0; r < 8; r++) for (let c = 0; c < 4; c++) slots.push([0.12 + c * 0.25 + (r % 2) * 0.06, 0.12 + r * 0.115]);
-  const free = (s) => taken.every(([x, y]) => Math.abs(x - s[0]) > 0.14 || Math.abs(y - s[1]) > 0.16);
+  const slots = ringSlots(Math.max(list.length, 3));
+  const free = (s) => taken.every(([x, y]) => Math.abs(x - s[0]) > 0.1 || Math.abs(y - s[1]) > 0.12);
   return list.map(({ e, p }) => {
     if (typeof p.x === "number" && typeof p.y === "number") return { e, p, x: p.x, y: p.y };
-    const s = slots.find(free) || [0.5, 0.5];
+    const s = slots.find(free) || slots.find((x) => !taken.includes(x)) || [0.5, 0.47];
     taken.push(s);
     return { e, p, x: s[0], y: s[1] };
   });
+}
+async function resetLayout(aid) {
+  const list = teamElements().filter((x) => x.placements?.[aid]);
+  list.forEach((x) => { x.placements[aid].x = null; x.placements[aid].y = null; });
+  renderMap();
+  await Promise.all(list.map((x) => store.setPosition(x.id, aid, null, null)));
 }
 function renderMap() {
   const els = teamElements();
@@ -452,10 +466,10 @@ function renderMap() {
       return `<g class="node" data-node="${e.id}" data-asm="${a.id}" tabindex="0" role="button" aria-label="${esc(placeCode(e, a.id) + " " + e.name)}">
         ${sel ? `<rect x="${cx - h - 7}" y="${cy - h - 7}" width="${S + 14}" height="${S + 14}" rx="6" fill="#E6ECFA" stroke="#2F5FD0" stroke-width="2"/>` : ""}
         ${shape}
-        <text x="${cx}" y="${cy + h + 15}" text-anchor="middle" font-size="12" font-weight="700" fill="#1F1F1C">${esc(elCode(e))}</text>
-        <text x="${cx}" y="${cy + h + 29}" text-anchor="middle" font-size="12" fill="#1F1F1C">${esc(e.name.length > 22 ? e.name.slice(0, 21) + "…" : e.name)}</text></g>`;
+        <text x="${cx}" y="${cy + h + 15}" text-anchor="middle" font-size="12" font-weight="700" fill="#1F1F1C" paint-order="stroke" stroke="#FFFFFF" stroke-width="4" stroke-linejoin="round">${esc(elCode(e))}</text>
+        <text x="${cx}" y="${cy + h + 29}" text-anchor="middle" font-size="12" fill="#1F1F1C" paint-order="stroke" stroke="#FFFFFF" stroke-width="4" stroke-linejoin="round">${esc(e.name.length > 22 ? e.name.slice(0, 21) + "…" : e.name)}</text></g>`;
     }).join("");
-    return `<div class="mapcard"><div class="head"><b>${esc(a.name)} assemblage <span class="muted" style="font-weight:400">· A${a.n}</span></b><span class="muted small">${nodes.length} elements · ${rels.filter((r) => r.assemblage === a.id).length} lines</span></div>
+    return `<div class="mapcard"><div class="head"><b>${esc(a.name)} assemblage <span class="muted" style="font-weight:400">· A${a.n}</span></b><span class="muted small">${nodes.length} elements · ${rels.filter((r) => r.assemblage === a.id).length} lines ${nodes.length > 1 ? `· <button type="button" class="linkbtn" data-relayout="${a.id}">Arrange in a circle</button>` : ""}</span></div>
       <svg viewBox="0 0 ${VB_W} ${VB_H + 20}" data-map="${a.id}" role="group" aria-label="${esc(a.name)} map">${lines}${nodeSvg}
       ${nodes.length ? "" : `<text x="${VB_W / 2}" y="${VB_H / 2}" text-anchor="middle" fill="#66645D" font-size="14">No elements in this assemblage yet</text>`}</svg></div>`;
   }).join("");
@@ -549,10 +563,10 @@ function renderCount() {
   }).join("");
   const outside = els.filter((e) => e.placements?.[NONE]);
   const outRows = outside.length ? `<tr class="group"><td colspan="6">NOT IN ANY ASSEMBLAGE · A0 · NOT COUNTED</td></tr>` + outside.map((e) => `<tr class="muted"><td class="code">${esc(placeCode(e, NONE))}</td><td>${shapeIcon(e.type, e.placements[NONE].voice, 16, "#66645D")}</td><td>${esc(e.name)}</td><td class="num">–</td><td class="num">–</td><td></td></tr>`).join("") : "";
-  $("#view").innerHTML = `<div class="grid2" style="grid-template-columns:minmax(0,1fr) 320px">
+  $("#view").innerHTML = `<div class="countgrid">
     <div class="card"><h2>${esc(tname)} · connections per element <span class="muted" style="font-weight:400">(degree centrality, counted inside each assemblage)</span></h2>
-      <div class="tablewrap"><table><thead><tr><th>No.</th><th></th><th>Element</th><th class="num">In this assemblage</th><th class="num">Sum across assemblages</th><th></th></tr></thead><tbody>${sections}${outRows}</tbody></table></div>
-      <p class="muted small">Each assemblage is its own map, so lines are counted inside it. The sum adds the same element across maps. Dashed lines are counted.</p></div>
+      <div class="tablewrap"><table><thead><tr><th>No.</th><th></th><th>Element</th><th class="num">In this map</th><th class="num">Total</th><th></th></tr></thead><tbody>${sections}${outRows}</tbody></table></div>
+      <p class="muted small">In this map: lines counted inside that assemblage’s map. Total: the same element added across maps. Dashed lines are counted.</p></div>
     <div style="display:flex;flex-direction:column;gap:16px">
       <div class="card"><h2>Most connected</h2>${tops.join("") || `<p class="muted">No elements yet.</p>`}</div>
       <div class="card"><h2>Summary</h2>
@@ -626,6 +640,7 @@ document.addEventListener("click", (ev) => {
   // map
   if (el.id === "relClear") { selection = { aid: null, from: null, to: null }; relDraft = { verb: "", disputed: false }; renderMap(); return; }
   if (el.id === "relSave") { saveRelation(); return; }
+  if (d.relayout) { resetLayout(d.relayout); return; }
   if (d.rdel) { pendingDelete = { kind: "rel", id: d.rdel }; refreshSide(); return; }
   if (d.rdelYes) { pendingDelete = null; store.deleteDocs([], [d.rdelYes]); return; }
   if (d.rdisp) { const r = data.relations.find((x) => x.id === d.rdisp); if (r) store.updateRelation(r.id, { disputed: !r.disputed }); return; }
