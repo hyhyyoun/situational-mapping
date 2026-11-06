@@ -65,7 +65,7 @@ h3 { font-size: 13px; margin: 0; letter-spacing: .04em; text-transform: uppercas
 .place .row { display: flex; gap: 8px; }
 .place .row > select { width: 160px; flex: none; }
 .place .row > input { flex: 1; min-width: 0; }
-.formbtns { display: flex; gap: 8px; margin-top: 6px; }
+.formbtns { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 6px; }
 
 .tablewrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; }
@@ -82,6 +82,8 @@ td.code { color: var(--muted); white-space: nowrap; font-variant-numeric: tabula
 .mapcard .head { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 14px; border-bottom: 1px solid var(--line); }
 .mapcard svg { display: block; width: 100%; height: auto; touch-action: none; user-select: none; }
 .node { cursor: grab; }
+.rlab { cursor: pointer; }
+.rlab:hover line:last-of-type { stroke: #2F5FD0; }
 .node:active { cursor: grabbing; }
 .outside { margin-top: 14px; padding: 10px 14px; border: 1px dashed var(--line); border-radius: 8px; background: var(--soft); display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); color: var(--muted); }
@@ -468,7 +470,8 @@ function renderMap() {
     const lines = rels.filter((r) => r.assemblage === a.id && pos[r.from] && pos[r.to]).map((r) => {
       const [x1, y1] = pos[r.from], [x2, y2] = pos[r.to];
       const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
-      return `<g><line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#1F1F1C" stroke-width="2" ${r.disputed ? 'stroke-dasharray="7 5"' : ""}/>
+      const lab = `Edit relation ${r.no}: ${r.verb}`;
+      return `<g class="rlab" data-rel="${r.id}" tabindex="0" role="button" aria-label="${esc(lab)}"><line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="transparent" stroke-width="16"/><line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#1F1F1C" stroke-width="2" ${r.disputed ? 'stroke-dasharray="7 5"' : ""}/>
         ${showLabels
           ? `<text x="${mx}" y="${my - 6}" text-anchor="middle" font-size="12" fill="#2F5FD0" paint-order="stroke" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round"><tspan font-weight="700">${r.no}</tspan> ${esc(r.verb.length > 28 ? r.verb.slice(0, 27) + "…" : r.verb)}${r.disputed ? " ?" : ""}</text>`
           : `<circle cx="${mx}" cy="${my}" r="11" fill="#FFF" stroke="#1F1F1C"/><text x="${mx}" y="${my + 4}" text-anchor="middle" font-size="11" font-weight="700" fill="#1F1F1C">${r.no}</text>`}</g>`;
@@ -492,13 +495,14 @@ function renderMap() {
   }).join("");
   const outside = els.filter((e) => e.placements?.[NONE]);
   const f = selection.from && elById(selection.from);
-  const hint = !f ? "Click an element, then a second one in the same map, to connect them." : `${esc(placeCode(f, selection.aid) + " " + f.name)} selected. Now click a second element in the same map.`;
+  const picking = f && !selection.to;
+  const hint = !picking ? "Click two elements in the same map to connect them. Click a relation on a line to edit it." : `${esc(placeCode(f, selection.aid) + " " + f.name)} selected. Now click a second element in the same map.`;
   $("#view").innerHTML = `<div class="maplayout"><div>
-      <div class="maptools"><span class="${f ? "hint on" : "hint"}">${hint}</span>
+      <div class="maptools"><span class="${picking ? "hint on" : "hint"}">${hint}</span>
         <label class="switch"><input type="checkbox" id="labelToggle" ${showLabels ? "checked" : ""}><span class="track" aria-hidden="true"></span>Show relations on lines</label></div>
       <div class="maps">${maps}</div>
       <div class="outside"><b class="muted">Not in any assemblage · A0</b>${outside.length ? outside.map((e) => `<span class="chip">${shapeIcon(e.type, e.placements[NONE].voice, 14, "#66645D")}${esc(placeCode(e, NONE) + " " + e.name)}</span>`).join("") : `<span class="muted">none</span>`}<span class="muted small" style="margin-left:auto">Listed only · cannot be connected</span></div>
-      <div class="legend"><span>${shapeIcon("H", "speaks", 14)}Human</span><span>${shapeIcon("N", "speaks", 14)}Nonhuman</span><span>Solid outline = has a voice</span><span>Dashed outline = silent</span><span>Dashed line = team disagrees</span><span>Drag to move · click two elements to connect · click the same pair again to edit</span></div>
+      <div class="legend"><span>${shapeIcon("H", "speaks", 14)}Human</span><span>${shapeIcon("N", "speaks", 14)}Nonhuman</span><span>Solid outline = has a voice</span><span>Dashed outline = silent</span><span>Dashed line = team disagrees</span><span>Drag to move · click two elements to connect · click a relation on a line to edit it</span></div>
     </div>
     <div class="side">${relList()}</div></div>${relPopup()}`;
 }
@@ -512,7 +516,10 @@ function relPopup() {
     <div class="field"><label class="label" for="relVerb">Relation (a verb)</label><input id="relVerb" type="text" value="${esc(relDraft.verb)}" placeholder="e.g. depends on" autocomplete="off"></div>
     <label class="opts" style="margin-bottom:12px"><span><input type="checkbox" id="relDisp" ${relDraft.disputed ? "checked" : ""}> Team disagrees (dashed line)</span></label>
     <p class="muted small" id="relMsg" style="min-height:1em;margin:0 0 8px"></p>
-    <div class="formbtns"><button type="button" class="btn primary" id="relSave" ${relDraft.verb.trim() ? "" : "disabled"}>${relDraft.editId ? "Save changes" : "Save relation"}</button><button type="button" class="btn ghost" id="relClear">Cancel</button></div>
+    <div class="formbtns"><button type="button" class="btn primary" id="relSave" ${relDraft.verb.trim() ? "" : "disabled"}>${relDraft.editId ? "Save changes" : "Save relation"}</button><button type="button" class="btn ghost" id="relClear">Cancel</button>
+      ${relDraft.editId ? (relDraft.confirmDel
+        ? `<span class="confirm" style="margin-left:auto">Delete this line? <button type="button" class="linkbtn danger" id="relDelYes">Delete</button><button type="button" class="linkbtn" id="relDelNo">Keep</button></span>`
+        : `<button type="button" class="btn danger" id="relDelete" style="margin-left:auto">Delete line</button>`) : ""}</div>
   </div></div>`;
 }
 function relList() {
@@ -523,7 +530,7 @@ function relList() {
     return `<h3 style="margin:10px 0 2px">${esc(a.name)} · A${a.n}</h3>` + rs.map((r) => {
       const f = elById(r.from), t = elById(r.to);
       const del = pendingDelete && pendingDelete.kind === "rel" && pendingDelete.id === r.id;
-      return `<div class="rel"><span class="n">${r.no}</span><span class="t">${esc(f ? elCode(f) : "?")} ${esc(r.verb)} ${esc(t ? elCode(t) : "?")}${r.disputed ? ' <span class="muted">(disputed)</span>' : ""}<br><span class="muted small">${esc(f?.name || "")} → ${esc(t?.name || "")}</span></span>
+      return `<div class="rel"><span class="n">${r.no}</span><span class="t"><button type="button" class="linkbtn" style="padding:0;text-align:left" data-redit="${r.id}">${esc(f ? elCode(f) : "?")} ${esc(r.verb)} ${esc(t ? elCode(t) : "?")}</button>${r.disputed ? ' <span class="muted">(disputed)</span>' : ""}<br><span class="muted small">${esc(f?.name || "")} → ${esc(t?.name || "")}</span></span>
         ${del ? `<span class="confirm"><button type="button" class="linkbtn danger" data-rdel-yes="${r.id}">Delete</button><button type="button" class="linkbtn" data-del-no>Keep</button></span>`
               : `<button type="button" class="linkbtn" data-rdisp="${r.id}">${r.disputed ? "Agreed" : "Disputed"}</button><button type="button" class="linkbtn danger" data-rdel="${r.id}">Delete</button>`}</div>`;
     }).join("");
@@ -543,6 +550,13 @@ async function saveRelation() {
   }
   selection = { aid: null, from: null, to: null }; relDraft = { verb: "", disputed: false };
   renderMap();
+}
+function openRelation(rid) {
+  const r = data.relations.find((x) => x.id === rid); if (!r) return;
+  selection = { aid: r.assemblage, from: r.from, to: r.to };
+  relDraft = { verb: r.verb, disputed: !!r.disputed, editId: r.id };
+  renderMap();
+  const v = $("#relVerb"); v?.focus(); v?.select();
 }
 function clickNode(id, aid) {
   if (selection.aid !== aid || (!selection.from) || (selection.from && selection.to)) {
@@ -638,6 +652,8 @@ function exportRelations() {
 /* ---------- events ---------- */
 document.addEventListener("click", (ev) => {
   if (ev.target.id === "relOverlay") { selection = { aid: null, from: null, to: null }; relDraft = { verb: "", disputed: false }; renderMap(); return; }
+  const relEl = ev.target.closest("[data-rel]");
+  if (relEl && !ev.target.closest("button")) { openRelation(relEl.dataset.rel); return; }
   const el = ev.target.closest("button, [data-node]");
   if (!el) return;
   const d = el.dataset;
@@ -669,6 +685,10 @@ document.addEventListener("click", (ev) => {
   if (el.id === "relClear") { selection = { aid: null, from: null, to: null }; relDraft = { verb: "", disputed: false }; renderMap(); return; }
   if (el.id === "relSave") { saveRelation(); return; }
   if (d.relayout) { resetLayout(d.relayout); return; }
+  if (el.id === "relDelete") { relDraft.confirmDel = true; renderMap(); return; }
+  if (el.id === "relDelNo") { relDraft.confirmDel = false; renderMap(); return; }
+  if (el.id === "relDelYes") { const id = relDraft.editId; selection = { aid: null, from: null, to: null }; relDraft = { verb: "", disputed: false }; store.deleteDocs([], [id]); renderMap(); return; }
+  if (d.redit) { openRelation(d.redit); return; }
   if (d.rdel) { pendingDelete = { kind: "rel", id: d.rdel }; refreshSide(); return; }
   if (d.rdelYes) { pendingDelete = null; store.deleteDocs([], [d.rdelYes]); return; }
   if (d.rdisp) { const r = data.relations.find((x) => x.id === d.rdisp); if (r) store.updateRelation(r.id, { disputed: !r.disputed }); return; }
@@ -680,6 +700,8 @@ document.addEventListener("click", (ev) => {
 document.addEventListener("keydown", (ev) => {
   const n = ev.target.closest?.("[data-node]");
   if (n && (ev.key === "Enter" || ev.key === " ")) { ev.preventDefault(); clickNode(n.dataset.node, n.dataset.asm); }
+  const rl = ev.target.closest?.("[data-rel]");
+  if (rl && (ev.key === "Enter" || ev.key === " ")) { ev.preventDefault(); openRelation(rl.dataset.rel); }
   if (ev.target.id === "relVerb" && ev.key === "Enter") { ev.preventDefault(); saveRelation(); }
   if (ev.key === "Escape" && $("#relOverlay")) { selection = { aid: null, from: null, to: null }; relDraft = { verb: "", disputed: false }; renderMap(); }
 });
