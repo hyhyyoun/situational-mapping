@@ -1,0 +1,728 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Situational Mapping</title>
+<style>
+:root {
+  --bg: #F6F5F1;
+  --panel: #FFFFFF;
+  --ink: #1F1F1C;
+  --muted: #66645D;
+  --line: #D6D3CA;
+  --soft: #EEECE6;
+  --accent: #2F5FD0;
+  --accent-soft: #E6ECFA;
+  --danger: #B23A2E;
+  --font: system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 14px; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+header { position: sticky; top: 0; z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line); }
+.bar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; padding: 12px 24px; max-width: 1400px; margin: 0 auto; }
+.brand { font-weight: 700; font-size: 16px; margin-right: auto; }
+.brand small { font-weight: 400; color: var(--muted); margin-left: 8px; }
+nav { display: flex; gap: 4px; flex-wrap: wrap; }
+nav button { padding: 8px 14px; border: 1px solid var(--line); background: var(--panel); border-radius: 6px; }
+nav button[aria-current="page"] { background: var(--ink); color: #FFF; border-color: var(--ink); }
+.teampick { display: flex; align-items: center; gap: 8px; }
+select, input[type="text"] { padding: 8px 10px; border: 1px solid #B9B6AC; border-radius: 6px; background: #FFF; }
+input[type="text"]:disabled { background: var(--soft); color: var(--muted); }
+
+main { max-width: 1400px; margin: 0 auto; padding: 20px 24px 48px; }
+.banner { margin-bottom: 16px; padding: 10px 14px; border-radius: 6px; background: #FFF4D6; border: 1px solid #E6CF85; }
+.banner.err { background: #FBE7E4; border-color: #E2A59D; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 18px; }
+h2 { font-size: 16px; margin: 0 0 12px; }
+h3 { font-size: 13px; margin: 0; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.muted { color: var(--muted); }
+.small { font-size: 12px; }
+.btn { padding: 9px 14px; border: 1px solid var(--ink); background: var(--panel); border-radius: 6px; }
+.btn.primary { background: var(--ink); color: #FFF; }
+.btn.ghost { border-color: var(--line); }
+.btn.danger { border-color: var(--danger); color: var(--danger); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.linkbtn { border: 0; background: none; padding: 2px 4px; color: var(--accent); text-decoration: underline; }
+.linkbtn.danger { color: var(--danger); }
+
+.grid2 { display: grid; grid-template-columns: minmax(320px, 420px) minmax(0, 1fr); gap: 20px; align-items: start; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; align-items: start; }
+@media (max-width: 900px) { .grid2, .grid3 { grid-template-columns: minmax(0, 1fr); } }
+
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field > .label { font-weight: 600; }
+.opts { display: flex; flex-wrap: wrap; gap: 6px 16px; }
+.opts label { display: flex; align-items: center; gap: 6px; }
+.place { border: 1px solid var(--line); background: var(--soft); border-radius: 6px; padding: 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
+.place .row { display: flex; gap: 8px; }
+.place .row > select { width: 160px; flex: none; }
+.place .row > input { flex: 1; min-width: 0; }
+.formbtns { display: flex; gap: 8px; margin-top: 6px; }
+
+.tablewrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+th { font-size: 12px; color: var(--muted); border-bottom: 2px solid var(--ink); white-space: nowrap; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+tr.group td { background: var(--soft); font-weight: 600; font-size: 12px; letter-spacing: .03em; color: var(--muted); }
+tr.cont td { border-top: 0; }
+td.code { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.bar-cell span { display: block; height: 10px; background: var(--ink); border-radius: 2px; }
+
+.maps { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
+.mapcard { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.mapcard .head { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.mapcard svg { display: block; width: 100%; height: auto; touch-action: none; user-select: none; }
+.node { cursor: grab; }
+.node:active { cursor: grabbing; }
+.outside { margin-top: 14px; padding: 10px 14px; border: 1px dashed var(--line); border-radius: 8px; background: var(--soft); display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); color: var(--muted); }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 12px; color: var(--muted); font-size: 12px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.maplayout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; align-items: start; }
+@media (max-width: 1000px) { .maplayout { grid-template-columns: minmax(0, 1fr); } }
+.side { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 80px; }
+.sel { display: flex; flex-direction: column; gap: 2px; margin-bottom: 10px; }
+.sel b { font-weight: 600; }
+.rellist { display: flex; flex-direction: column; }
+.rel { display: flex; gap: 8px; align-items: baseline; padding: 7px 0; border-bottom: 1px solid var(--line); }
+.rel .n { width: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.rel .t { flex: 1; min-width: 0; }
+
+.kv { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; }
+.kv b { font-variant-numeric: tabular-nums; text-align: right; }
+.listed { display: flex; flex-direction: column; gap: 8px; }
+.listed .item { display: flex; gap: 8px; align-items: center; }
+.listed .item input { flex: 1; min-width: 0; }
+.tag { display: inline-block; padding: 1px 6px; border: 1px solid #B9B6AC; border-radius: 4px; font-size: 12px; font-weight: 700; }
+.confirm { display: inline-flex; gap: 6px; align-items: center; }
+.empty { padding: 24px; text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: 8px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div class="brand">Situational Mapping<small id="situationName"></small></div>
+    <nav id="tabs" aria-label="Steps"></nav>
+    <div class="teampick"><label for="teamSel">Team</label><select id="teamSel"></select></div>
+  </div>
+</header>
+<main>
+  <div id="banner"></div>
+  <section id="view"></section>
+</main>
+
+<script type="module">
+/* ---------- configuration ---------- */
+const firebaseConfig = {
+  apiKey: "AIzaSyCadpcu_ERQFBJVsxObSfXTA7bQ7m_evaM",
+  authDomain: "mthd-situational-mapping.firebaseapp.com",
+  projectId: "mthd-situational-mapping",
+  storageBucket: "mthd-situational-mapping.firebasestorage.app",
+  messagingSenderId: "281019003256",
+  appId: "1:281019003256:web:f39b2e2bc3ecce628e588d"
+};
+const FIREBASE_VERSION = "10.12.2";
+
+const params = new URLSearchParams(location.search);
+const DEMO = params.has("demo");
+const ADMIN = params.has("admin");
+const WID = (params.get("w") || "main").replace(/[^A-Za-z0-9_-]/g, "") || "main";
+
+const DEFAULT_WORKSHOP = {
+  situation: "AI data centre siting",
+  teams: [{ id: "t1", name: "Team 1" }, { id: "t2", name: "Team 2" }, { id: "t3", name: "Team 3" }],
+  assemblages: [{ id: "a1", n: 1, name: "Supporting" }, { id: "a2", n: 2, name: "Opposing" }],
+  nextAssemblage: 3,
+  nextTeam: 4,
+  sources: ["Interview", "Field observation", "News article", "Policy document", "Team knowledge"]
+};
+const NONE = "a0";
+const VOICES = [
+  { v: "speaks", label: "Speaks for itself" },
+  { v: "spoken", label: "Spoken for by…" },
+  { v: "silent", label: "No one speaks" }
+];
+
+/* ---------- small helpers ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const ls = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch {} }
+};
+const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+function showBanner(msg, err) { $("#banner").innerHTML = msg ? `<div class="banner${err ? " err" : ""}">${msg}</div>` : ""; }
+
+/* ---------- data layer ---------- */
+let store;
+function makeDemoStore() {
+  const s = { workshop: structuredClone(DEFAULT_WORKSHOP), elements: {}, relations: {} };
+  const listeners = [];
+  const emit = () => listeners.forEach((f) => f(snapshot()));
+  const snapshot = () => ({ workshop: s.workshop, elements: Object.entries(s.elements).map(([id, d]) => ({ id, ...d })), relations: Object.entries(s.relations).map(([id, d]) => ({ id, ...d })) });
+  const P = (o) => Promise.resolve(o);
+  // example data for the demo only
+  const ex = [
+    ["H", 1, "Residents’ committee", { a2: { voice: "speaks", source: "Interview", where: "Interview 1", x: .2, y: .2 } }],
+    ["H", 2, "Data centre operator", { a1: { voice: "speaks", source: "News article", where: "Local news, 3 Oct", x: .2, y: .2 } }],
+    ["H", 3, "Future generations", { a2: { voice: "silent", source: "Team knowledge", x: .75, y: .85 } }],
+    ["N", 1, "Water", { a1: { voice: "silent", source: "Policy document", where: "Siting plan p.12", x: .65, y: .6 }, a2: { voice: "spoken", spokenBy: "Environmental group", source: "Interview", where: "Interview 3", x: .25, y: .75 } }],
+    ["N", 2, "Transmission tower", { a2: { voice: "spoken", spokenBy: "Residents", source: "Field observation", x: .7, y: .45 } }],
+    ["N", 3, "River ecosystem", { a0: { voice: "silent", source: "Team knowledge" } }]
+  ];
+  const ids = {};
+  ex.forEach(([type, no, name, placements], i) => { const id = "e" + i; ids[type + no] = id; s.elements[id] = { team: "t1", type, no, name, placements, createdAt: i }; });
+  s.relations.r1 = { team: "t1", assemblage: "a2", from: ids.H1, to: ids.N2, verb: "suffers noise from", disputed: false, no: 1, createdAt: 1 };
+  s.relations.r2 = { team: "t1", assemblage: "a2", from: ids.N2, to: ids.N1, verb: "runs over", disputed: false, no: 2, createdAt: 2 };
+  s.relations.r3 = { team: "t1", assemblage: "a1", from: ids.H2, to: ids.N1, verb: "cools servers with", disputed: false, no: 3, createdAt: 3 };
+  return {
+    subscribe(cb) { listeners.push(cb); setTimeout(() => cb(snapshot()), 0); },
+    saveWorkshop(w) { s.workshop = structuredClone(w); emit(); return P(); },
+    addElement(d) { const id = uid(); s.elements[id] = { ...d, createdAt: Date.now() }; emit(); return P(id); },
+    updateElement(id, d) { s.elements[id] = { ...s.elements[id], ...d }; emit(); return P(); },
+    setPosition(id, aid, x, y) { const p = s.elements[id]?.placements?.[aid]; if (p) { p.x = x; p.y = y; } emit(); return P(); },
+    deleteDocs(elementIds, relationIds) { elementIds.forEach((i) => delete s.elements[i]); relationIds.forEach((i) => delete s.relations[i]); emit(); return P(); },
+    addRelation(d) { s.relations[uid()] = { ...d, createdAt: Date.now() }; emit(); return P(); },
+    updateRelation(id, d) { s.relations[id] = { ...s.relations[id], ...d }; emit(); return P(); }
+  };
+}
+
+async function makeFirebaseStore() {
+  const base = `https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/`;
+  const { initializeApp } = await import(base + "firebase-app.js");
+  const fs = await import(base + "firebase-firestore.js");
+  const app = initializeApp(firebaseConfig);
+  const db = fs.getFirestore(app);
+  const wRef = fs.doc(db, "workshops", WID);
+  const eCol = fs.collection(db, "workshops", WID, "elements");
+  const rCol = fs.collection(db, "workshops", WID, "relations");
+  const state = { workshop: null, elements: [], relations: [] };
+  let ready = { w: false, e: false, r: false };
+  const onErr = (e) => { console.error(e); showBanner("Could not reach the database. Check the internet connection and the Firestore rules, then reload. (" + esc(e.code || e.message) + ")", true); };
+  return {
+    subscribe(cb) {
+      const fire = () => { if (ready.w && ready.e && ready.r) cb({ ...state }); };
+      fs.onSnapshot(wRef, (snap) => {
+        if (!snap.exists()) { fs.setDoc(wRef, DEFAULT_WORKSHOP).catch(onErr); return; }
+        state.workshop = snap.data(); ready.w = true; fire();
+      }, onErr);
+      fs.onSnapshot(eCol, (snap) => { state.elements = snap.docs.map((d) => ({ id: d.id, ...d.data() })); ready.e = true; fire(); }, onErr);
+      fs.onSnapshot(rCol, (snap) => { state.relations = snap.docs.map((d) => ({ id: d.id, ...d.data() })); ready.r = true; fire(); }, onErr);
+    },
+    saveWorkshop(w) { return fs.setDoc(wRef, w).catch(onErr); },
+    async addElement(d) { const ref = await fs.addDoc(eCol, { ...d, createdAt: fs.serverTimestamp() }).catch(onErr); return ref?.id; },
+    updateElement(id, d) { return fs.updateDoc(fs.doc(eCol, id), d).catch(onErr); },
+    setPosition(id, aid, x, y) { return fs.updateDoc(fs.doc(eCol, id), new fs.FieldPath("placements", aid, "x"), x, new fs.FieldPath("placements", aid, "y"), y).catch(onErr); },
+    deleteDocs(elementIds, relationIds) {
+      const b = fs.writeBatch(db);
+      elementIds.forEach((i) => b.delete(fs.doc(eCol, i)));
+      relationIds.forEach((i) => b.delete(fs.doc(rCol, i)));
+      return b.commit().catch(onErr);
+    },
+    addRelation(d) { return fs.addDoc(rCol, { ...d, createdAt: fs.serverTimestamp() }).catch(onErr); },
+    updateRelation(id, d) { return fs.updateDoc(fs.doc(rCol, id), d).catch(onErr); }
+  };
+}
+
+/* ---------- app state ---------- */
+let data = { workshop: null, elements: [], relations: [] };
+let tab = ls.get("sm-tab", "elements");
+if (tab === "setup" && !ADMIN) tab = "elements";
+let team = ls.get("sm-team", "t1");
+let dragging = false;
+let selection = { aid: null, from: null, to: null };
+let relDraft = { verb: "", disputed: false };
+let pendingDelete = null; // {kind, id}
+
+const W = () => data.workshop || DEFAULT_WORKSHOP;
+const assemblages = () => W().assemblages || [];
+const asmById = (id) => id === NONE ? { id: NONE, n: 0, name: "Not in any assemblage" } : assemblages().find((a) => a.id === id);
+const asmCode = (id) => "A" + (asmById(id)?.n ?? "?");
+const teamElements = () => data.elements.filter((e) => e.team === team).sort((a, b) => (a.type === b.type ? a.no - b.no : a.type === "H" ? -1 : 1));
+const teamRelations = () => data.relations.filter((r) => r.team === team).sort((a, b) => a.no - b.no);
+const elCode = (e) => e.type + e.no;
+const placeCode = (e, aid) => `${elCode(e)}·${asmCode(aid)}`;
+const elById = (id) => data.elements.find((e) => e.id === id);
+const orderedPlacements = (e) => Object.keys(e.placements || {}).sort((a, b) => (asmById(a)?.n ?? 99) - (asmById(b)?.n ?? 99));
+
+/* ---------- form state for tab 1 ---------- */
+function blankPlace() { return { voice: "speaks", spokenBy: "", source: W().sources?.[0] || "", sourceOther: "", where: "" }; }
+let form = newForm();
+function newForm() { return { editId: null, name: "", type: "N", checked: {}, place: {} }; }
+
+/* ---------- rendering ---------- */
+function renderChrome() {
+  $("#situationName").textContent = W().situation ? "· " + W().situation : "";
+  const tabs = [...(ADMIN ? [["setup", "0 Setup"]] : []), ["elements", "1 Elements"], ["map", "2 Map"], ["count", "3 Connections"]];
+  $("#tabs").innerHTML = tabs.map(([k, l]) => `<button type="button" data-tab="${k}" ${k === tab ? 'aria-current="page"' : ""}>${l}</button>`).join("");
+  const teams = W().teams || [];
+  if (!teams.find((t) => t.id === team) && teams[0]) { team = teams[0].id; }
+  $("#teamSel").innerHTML = teams.map((t) => `<option value="${esc(t.id)}" ${t.id === team ? "selected" : ""}>${esc(t.name)}</option>`).join("");
+  $(".teampick").hidden = tab === "setup";
+}
+
+function render() {
+  renderChrome();
+  if (tab === "setup") renderSetup();
+  else if (tab === "elements") renderElements();
+  else if (tab === "map") renderMap();
+  else renderCount();
+}
+
+/* shapes */
+function shapeIcon(type, voice, size = 16, color = "#1F1F1C") {
+  const dash = voice === "silent" ? ' stroke-dasharray="3 2"' : "";
+  if (type === "H") return `<svg aria-hidden="true" width="${size}" height="${size}" viewBox="0 0 16 16"><rect x="1.5" y="1.5" width="13" height="13" fill="none" stroke="${color}" stroke-width="2"${dash}/></svg>`;
+  return `<svg aria-hidden="true" width="${size + 2}" height="${size}" viewBox="0 0 18 16"><path d="M9 1.5 L16.5 14.5 L1.5 14.5 Z" fill="none" stroke="${color}" stroke-width="2"${dash}/></svg>`;
+}
+const voiceText = (p) => p.voice === "speaks" ? "Speaks" : p.voice === "silent" ? "Silent" : "Spoken for by " + (p.spokenBy || "…");
+const sourceText = (p) => p.source === "__other" ? (p.sourceOther || "Other") : p.source;
+
+/* ----- tab 0: setup ----- */
+function renderSetup() {
+  const w = W();
+  const usedAsm = new Set(data.elements.flatMap((e) => Object.keys(e.placements || {})));
+  const usedTeam = new Set(data.elements.map((e) => e.team));
+  $("#view").innerHTML = `
+  <div class="grid3">
+    <div class="card">
+      <h2>Situation</h2>
+      <div class="field"><label class="label" for="sitName">Situation name</label><input id="sitName" type="text" value="${esc(w.situation)}"></div>
+      <h2 style="margin-top:18px">Teams</h2>
+      <div class="listed">
+        ${(w.teams || []).map((t, i) => `<div class="item"><input type="text" aria-label="Team name" data-team-name="${i}" value="${esc(t.name)}">${usedTeam.has(t.id) ? `<span class="muted small">has data</span>` : `<button type="button" class="linkbtn danger" data-team-del="${i}">Remove</button>`}</div>`).join("")}
+      </div>
+      <p><button type="button" class="btn ghost" id="teamAdd">+ Add team</button></p>
+    </div>
+    <div class="card">
+      <h2>Stakeholder assemblages</h2>
+      <p class="muted">Each assemblage becomes its own map in tab 2. Numbers (A1, A2) never change, even if you rename one.</p>
+      <div class="listed">
+        ${assemblages().map((a, i) => `<div class="item"><span class="tag">A${a.n}</span><input type="text" aria-label="Assemblage name" data-asm-name="${i}" value="${esc(a.name)}">${usedAsm.has(a.id) ? `<span class="muted small">has data</span>` : `<button type="button" class="linkbtn danger" data-asm-del="${i}">Remove</button>`}</div>`).join("")}
+        <div class="item muted"><span class="tag">A0</span><span>Not in any assemblage (always there)</span></div>
+      </div>
+      <p><button type="button" class="btn ghost" id="asmAdd">+ Add assemblage</button></p>
+    </div>
+    <div class="card">
+      <h2>Source types</h2>
+      <p class="muted">Options in the source dropdown. “Other” is always added.</p>
+      <div class="listed">
+        ${(w.sources || []).map((s, i) => `<div class="item"><input type="text" aria-label="Source type" data-src-name="${i}" value="${esc(s)}"><button type="button" class="linkbtn danger" data-src-del="${i}">Remove</button></div>`).join("")}
+      </div>
+      <p><button type="button" class="btn ghost" id="srcAdd">+ Add source type</button></p>
+    </div>
+  </div>
+  <p class="muted small" style="margin-top:16px">Changes save when you leave a field. Workshop ID: <b>${esc(WID)}</b>. Students open the same link without <code>?admin</code>.</p>`;
+}
+function saveW(mut) { const w = structuredClone(W()); mut(w); data.workshop = w; store.saveWorkshop(w); render(); }
+
+/* ----- tab 1: elements ----- */
+function renderElements() {
+  $("#view").innerHTML = `<div class="grid2"><form class="card" id="elForm" novalidate></form><div id="elList"></div></div>`;
+  renderForm();
+  renderElList();
+}
+function renderForm() {
+  const f = form;
+  const srcOpts = (sel) => [...(W().sources || []), "__other"].map((s) => `<option value="${esc(s)}" ${s === sel ? "selected" : ""}>${s === "__other" ? "Other…" : esc(s)}</option>`).join("");
+  const asmList = [...assemblages(), { id: NONE, n: 0, name: "Not in any assemblage" }];
+  const blocks = asmList.filter((a) => f.checked[a.id]).map((a) => {
+    const p = f.place[a.id] || (f.place[a.id] = blankPlace());
+    return `<div class="place">
+      <b>In ${esc(a.name)} <span class="muted">· A${a.n}</span></b>
+      <div class="row"><select aria-label="Voice in ${esc(a.name)}" data-p="${a.id}" data-k="voice">${VOICES.map((o) => `<option value="${o.v}" ${o.v === p.voice ? "selected" : ""}>${o.label}</option>`).join("")}</select>
+        <input type="text" placeholder="Spoken for by" aria-label="Spoken for by, ${esc(a.name)}" data-p="${a.id}" data-k="spokenBy" value="${esc(p.spokenBy)}" ${p.voice === "spoken" ? "" : "disabled"}></div>
+      <div class="row"><select aria-label="Source in ${esc(a.name)}" data-p="${a.id}" data-k="source">${srcOpts(p.source)}</select>
+        <input type="text" placeholder="${p.source === "__other" ? "Type the source" : "Where: which material, which passage"}" aria-label="Where, ${esc(a.name)}" data-p="${a.id}" data-k="${p.source === "__other" ? "sourceOther" : "where"}" value="${esc(p.source === "__other" ? p.sourceOther : p.where)}"></div>
+      ${p.source === "__other" ? `<input type="text" placeholder="Where: which material, which passage" aria-label="Where, ${esc(a.name)}" data-p="${a.id}" data-k="where" value="${esc(p.where)}">` : ""}
+    </div>`;
+  }).join("");
+  const anyChecked = Object.values(f.checked).some(Boolean);
+  $("#elForm").innerHTML = `
+    <h2>${f.editId ? "Edit " + esc(elCode(elById(f.editId) || { type: f.type, no: "" })) : "Add an element"}</h2>
+    <div class="field"><label class="label" for="fName">Element</label><input id="fName" type="text" value="${esc(f.name)}" placeholder="e.g. Water" autocomplete="off"></div>
+    <div class="field"><span class="label">Type</span><div class="opts">
+      <label><input type="radio" name="fType" value="H" ${f.type === "H" ? "checked" : ""} ${f.editId ? "disabled" : ""}> Human</label>
+      <label><input type="radio" name="fType" value="N" ${f.type === "N" ? "checked" : ""} ${f.editId ? "disabled" : ""}> Nonhuman</label></div></div>
+    <div class="field"><span class="label">Stakeholder assemblage <span class="muted" style="font-weight:400">(more than one OK)</span></span><div class="opts">
+      ${asmList.map((a) => `<label><input type="checkbox" data-chk="${a.id}" ${f.checked[a.id] ? "checked" : ""}> ${esc(a.name)}</label>`).join("")}</div></div>
+    ${anyChecked ? `<p class="muted small" style="margin:0 0 10px">One box per checked assemblage. Voice and source can differ.</p>` : ""}
+    ${blocks}
+    <p class="muted small" id="formMsg" style="min-height:1em;margin:0"></p>
+    <div class="formbtns">
+      <button type="submit" class="btn primary">${f.editId ? "Save changes" : "Add element"}</button>
+      ${f.editId ? `<button type="button" class="btn ghost" id="formCancel">Cancel</button>` : ""}
+    </div>`;
+}
+function renderElList() {
+  const els = teamElements();
+  const tname = (W().teams || []).find((t) => t.id === team)?.name || "";
+  if (!els.length) { $("#elList").innerHTML = `<div class="empty">No elements yet for ${esc(tname)}. Add the human stakeholders first (H), then the nonhumans you find (N).</div>`; return; }
+  const placements = els.reduce((n, e) => n + Object.keys(e.placements || {}).length, 0);
+  const rows = els.map((e) => orderedPlacements(e).map((aid, i) => {
+    const p = e.placements[aid];
+    const del = pendingDelete && pendingDelete.kind === "el" && pendingDelete.id === e.id;
+    return `<tr class="${i ? "cont" : ""}">
+      <td class="code">${esc(placeCode(e, aid))}</td>
+      <td>${shapeIcon(e.type, p.voice)}</td>
+      <td>${i ? `<span class="muted">${esc(e.name)}</span>` : esc(e.name)}</td>
+      <td>${aid === NONE ? "None" : esc(asmById(aid)?.name)}</td>
+      <td>${esc(voiceText(p))}</td>
+      <td>${esc(sourceText(p))}${p.where ? `<br><span class="muted small">${esc(p.where)}</span>` : ""}</td>
+      <td style="white-space:nowrap">${i ? "" : del
+        ? `<span class="confirm">Delete with its lines? <button type="button" class="linkbtn danger" data-del-yes="${e.id}">Delete</button><button type="button" class="linkbtn" data-del-no>Keep</button></span>`
+        : `<button type="button" class="linkbtn" data-edit="${e.id}">Edit</button><button type="button" class="linkbtn danger" data-del="${e.id}">Delete</button>`}</td></tr>`;
+  }).join("")).join("");
+  $("#elList").innerHTML = `<div class="card"><h2>${esc(tname)} · ${els.length} elements, ${placements} placements</h2>
+    <div class="tablewrap"><table><thead><tr><th>No.</th><th></th><th>Element</th><th>Assemblage</th><th>Voice</th><th>Source</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
+    <p class="muted small">Numbers are automatic: H or N + element number, then ·A + assemblage number. The same element in two assemblages keeps its number.</p></div>`;
+}
+async function submitForm() {
+  const f = form;
+  const msg = (t) => { const m = $("#formMsg"); if (m) m.textContent = t; };
+  const name = f.name.trim();
+  const checked = Object.keys(f.checked).filter((k) => f.checked[k]);
+  if (!name) return msg("Write the element’s name.");
+  if (!checked.length) return msg("Check at least one assemblage, or “Not in any assemblage”.");
+  const placements = {};
+  for (const aid of checked) {
+    const p = { ...(f.place[aid] || blankPlace()) };
+    if (p.voice === "spoken" && !p.spokenBy.trim()) return msg("Write who speaks for it in " + (asmById(aid)?.name || "") + ".");
+    if (p.voice !== "spoken") p.spokenBy = "";
+    if (p.source !== "__other") p.sourceOther = "";
+    placements[aid] = p;
+  }
+  if (f.editId) {
+    const old = elById(f.editId);
+    for (const aid of checked) { const op = old?.placements?.[aid]; if (op && typeof op.x === "number") { placements[aid].x = op.x; placements[aid].y = op.y; } }
+    const removed = Object.keys(old?.placements || {}).filter((a) => !checked.includes(a));
+    const dropRel = data.relations.filter((r) => removed.includes(r.assemblage) && (r.from === f.editId || r.to === f.editId)).map((r) => r.id);
+    await store.updateElement(f.editId, { name, placements });
+    if (dropRel.length) await store.deleteDocs([], dropRel);
+  } else {
+    const no = 1 + Math.max(0, ...data.elements.filter((e) => e.team === team && e.type === f.type).map((e) => e.no || 0));
+    await store.addElement({ team, type: f.type, no, name, placements });
+  }
+  const keepType = f.type;
+  form = newForm(); form.type = keepType;
+  renderForm(); $("#fName")?.focus();
+}
+
+/* ----- tab 2: map ----- */
+const VB_W = 600, VB_H = 480, S = 34;
+function layoutDefaults(list) {
+  // elements nobody has moved yet go to the first free grid slot
+  const taken = list.filter(({ p }) => typeof p.x === "number" && typeof p.y === "number").map(({ p }) => [p.x, p.y]);
+  const slots = [];
+  for (let r = 0; r < 8; r++) for (let c = 0; c < 4; c++) slots.push([0.12 + c * 0.25 + (r % 2) * 0.06, 0.12 + r * 0.115]);
+  const free = (s) => taken.every(([x, y]) => Math.abs(x - s[0]) > 0.14 || Math.abs(y - s[1]) > 0.16);
+  return list.map(({ e, p }) => {
+    if (typeof p.x === "number" && typeof p.y === "number") return { e, p, x: p.x, y: p.y };
+    const s = slots.find(free) || [0.5, 0.5];
+    taken.push(s);
+    return { e, p, x: s[0], y: s[1] };
+  });
+}
+function renderMap() {
+  const els = teamElements();
+  const rels = teamRelations();
+  const maps = assemblages().map((a) => {
+    const nodes = layoutDefaults(els.filter((e) => e.placements?.[a.id]).map((e) => ({ e, p: e.placements[a.id] })));
+    const pos = Object.fromEntries(nodes.map((n) => [n.e.id, [n.x * VB_W, n.y * VB_H]]));
+    const lines = rels.filter((r) => r.assemblage === a.id && pos[r.from] && pos[r.to]).map((r) => {
+      const [x1, y1] = pos[r.from], [x2, y2] = pos[r.to];
+      const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+      return `<g><line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#1F1F1C" stroke-width="2" ${r.disputed ? 'stroke-dasharray="7 5"' : ""}/>
+        <circle cx="${mx}" cy="${my}" r="11" fill="#FFF" stroke="#1F1F1C"/><text x="${mx}" y="${my + 4}" text-anchor="middle" font-size="11" font-weight="700" fill="#1F1F1C">${r.no}</text></g>`;
+    }).join("");
+    const nodeSvg = nodes.map(({ e, p, x, y }) => {
+      const cx = x * VB_W, cy = y * VB_H, h = S / 2;
+      const dash = p.voice === "silent" ? 'stroke-dasharray="6 4"' : "";
+      const sel = selection.aid === a.id && (selection.from === e.id || selection.to === e.id);
+      const shape = e.type === "H"
+        ? `<rect x="${cx - h}" y="${cy - h}" width="${S}" height="${S}" fill="#FFF" stroke="#1F1F1C" stroke-width="2" ${dash}/>`
+        : `<path d="M${cx} ${cy - h - 2} L${cx + h + 2} ${cy + h} L${cx - h - 2} ${cy + h} Z" fill="#FFF" stroke="#1F1F1C" stroke-width="2" ${dash}/>`;
+      return `<g class="node" data-node="${e.id}" data-asm="${a.id}" tabindex="0" role="button" aria-label="${esc(placeCode(e, a.id) + " " + e.name)}">
+        ${sel ? `<rect x="${cx - h - 7}" y="${cy - h - 7}" width="${S + 14}" height="${S + 14}" rx="6" fill="#E6ECFA" stroke="#2F5FD0" stroke-width="2"/>` : ""}
+        ${shape}
+        <text x="${cx}" y="${cy + h + 15}" text-anchor="middle" font-size="12" font-weight="700" fill="#1F1F1C">${esc(elCode(e))}</text>
+        <text x="${cx}" y="${cy + h + 29}" text-anchor="middle" font-size="12" fill="#1F1F1C">${esc(e.name.length > 22 ? e.name.slice(0, 21) + "…" : e.name)}</text></g>`;
+    }).join("");
+    return `<div class="mapcard"><div class="head"><b>${esc(a.name)} assemblage <span class="muted" style="font-weight:400">· A${a.n}</span></b><span class="muted small">${nodes.length} elements · ${rels.filter((r) => r.assemblage === a.id).length} lines</span></div>
+      <svg viewBox="0 0 ${VB_W} ${VB_H + 20}" data-map="${a.id}" role="group" aria-label="${esc(a.name)} map">${lines}${nodeSvg}
+      ${nodes.length ? "" : `<text x="${VB_W / 2}" y="${VB_H / 2}" text-anchor="middle" fill="#66645D" font-size="14">No elements in this assemblage yet</text>`}</svg></div>`;
+  }).join("");
+  const outside = els.filter((e) => e.placements?.[NONE]);
+  $("#view").innerHTML = `<div class="maplayout"><div>
+      <div class="maps">${maps}</div>
+      <div class="outside"><b class="muted">Not in any assemblage · A0</b>${outside.length ? outside.map((e) => `<span class="chip">${shapeIcon(e.type, e.placements[NONE].voice, 14, "#66645D")}${esc(placeCode(e, NONE) + " " + e.name)}</span>`).join("") : `<span class="muted">none</span>`}<span class="muted small" style="margin-left:auto">Listed only · cannot be connected</span></div>
+      <div class="legend"><span>${shapeIcon("H", "speaks", 14)}Human</span><span>${shapeIcon("N", "speaks", 14)}Nonhuman</span><span>Solid outline = has a voice</span><span>Dashed outline = silent</span><span>Dashed line = team disagrees</span><span>Drag to move · click two elements to connect</span></div>
+    </div>
+    <div class="side">${relPanel()}${relList()}</div></div>`;
+}
+function relPanel() {
+  const f = selection.from && elById(selection.from), t = selection.to && elById(selection.to);
+  const lab = (e) => e ? `${esc(placeCode(e, selection.aid))} ${esc(e.name)}` : `<span class="muted">—</span>`;
+  const ok = f && t && relDraft.verb.trim();
+  return `<div class="card"><h2>New relation</h2>
+    <p class="muted" style="margin-top:0">${!f ? "Click an element on a map." : !t ? "Now click a second element in the same assemblage." : "Name the relation with a verb."}</p>
+    <div class="sel"><span class="muted small">From</span><b>${lab(f)}</b></div>
+    <div class="sel"><span class="muted small">To</span><b>${lab(t)}</b></div>
+    <div class="field"><label class="label" for="relVerb">Relation (a verb)</label><input id="relVerb" type="text" value="${esc(relDraft.verb)}" placeholder="e.g. depends on" ${f && t ? "" : "disabled"}></div>
+    <label class="opts" style="margin-bottom:12px"><span><input type="checkbox" id="relDisp" ${relDraft.disputed ? "checked" : ""}> Team disagrees (dashed line)</span></label>
+    <p class="muted small" id="relMsg" style="min-height:1em;margin:0 0 8px"></p>
+    <div class="formbtns"><button type="button" class="btn primary" id="relSave" ${ok ? "" : "disabled"}>Save relation</button><button type="button" class="btn ghost" id="relClear">Clear</button></div></div>`;
+}
+function relList() {
+  const rels = teamRelations();
+  const groups = assemblages().map((a) => {
+    const rs = rels.filter((r) => r.assemblage === a.id);
+    if (!rs.length) return "";
+    return `<h3 style="margin:10px 0 2px">${esc(a.name)} · A${a.n}</h3>` + rs.map((r) => {
+      const f = elById(r.from), t = elById(r.to);
+      const del = pendingDelete && pendingDelete.kind === "rel" && pendingDelete.id === r.id;
+      return `<div class="rel"><span class="n">${r.no}</span><span class="t">${esc(f ? elCode(f) : "?")} ${esc(r.verb)} ${esc(t ? elCode(t) : "?")}${r.disputed ? ' <span class="muted">(disputed)</span>' : ""}<br><span class="muted small">${esc(f?.name || "")} → ${esc(t?.name || "")}</span></span>
+        ${del ? `<span class="confirm"><button type="button" class="linkbtn danger" data-rdel-yes="${r.id}">Delete</button><button type="button" class="linkbtn" data-del-no>Keep</button></span>`
+              : `<button type="button" class="linkbtn" data-rdisp="${r.id}">${r.disputed ? "Agreed" : "Disputed"}</button><button type="button" class="linkbtn danger" data-rdel="${r.id}">Delete</button>`}</div>`;
+    }).join("");
+  }).join("");
+  return `<div class="card"><h2>Relations · ${rels.length}</h2>${groups || `<p class="muted">No lines yet.</p>`}</div>`;
+}
+function refreshSide() { const side = $(".side"); if (side) side.innerHTML = relPanel() + relList(); }
+async function saveRelation() {
+  const { aid, from, to } = selection;
+  const verb = relDraft.verb.trim();
+  if (!aid || !from || !to || !verb) return;
+  const exists = data.relations.find((r) => r.team === team && r.assemblage === aid && ((r.from === from && r.to === to) || (r.from === to && r.to === from)));
+  if (exists) { const m = $("#relMsg"); if (m) m.textContent = `These two are already connected (line ${exists.no}). Delete that line first to change it.`; return; }
+  const no = 1 + Math.max(0, ...data.relations.filter((r) => r.team === team).map((r) => r.no || 0));
+  await store.addRelation({ team, assemblage: aid, from, to, verb, disputed: relDraft.disputed, no });
+  selection = { aid: null, from: null, to: null }; relDraft = { verb: "", disputed: false };
+  renderMap();
+}
+function clickNode(id, aid) {
+  if (selection.aid !== aid || (!selection.from) || (selection.from && selection.to)) {
+    selection = { aid, from: id, to: null };
+  } else if (selection.from === id) {
+    selection = { aid: null, from: null, to: null };
+  } else {
+    selection.to = id;
+  }
+  renderMap();
+  if (selection.to) $("#relVerb")?.focus();
+}
+
+/* ----- tab 3: connections ----- */
+function degrees() {
+  const deg = {}; // key elId|aid
+  for (const r of teamRelations()) {
+    deg[r.from + "|" + r.assemblage] = (deg[r.from + "|" + r.assemblage] || 0) + 1;
+    deg[r.to + "|" + r.assemblage] = (deg[r.to + "|" + r.assemblage] || 0) + 1;
+  }
+  return deg;
+}
+function sumDeg(e, deg) { return orderedPlacements(e).filter((a) => a !== NONE).reduce((s, a) => s + (deg[e.id + "|" + a] || 0), 0); }
+function renderCount() {
+  const els = teamElements(), deg = degrees(), rels = teamRelations();
+  const tname = (W().teams || []).find((t) => t.id === team)?.name || "";
+  let tops = [], noLines = [];
+  const sections = assemblages().map((a) => {
+    const list = els.filter((e) => e.placements?.[a.id]).map((e) => ({ e, d: deg[e.id + "|" + a.id] || 0, s: sumDeg(e, deg) })).sort((x, y) => y.d - x.d || elCode(x.e).localeCompare(elCode(y.e)));
+    const max = Math.max(1, ...list.map((x) => x.d));
+    if (list.length) {
+      const top = list[0].d;
+      const leaders = list.filter((x) => x.d === top);
+      tops.push(`<div class="kv"><span>${esc(a.name)} · A${a.n}</span><b>${top === 0 ? "no lines" : leaders.length > 1 ? `tie at ${top} (${leaders.length})` : `${esc(elCode(leaders[0].e) + " " + leaders[0].e.name)} (${top})`}</b></div>`);
+    }
+    list.filter((x) => x.d === 0).forEach((x) => noLines.push(placeCode(x.e, a.id) + " " + x.e.name));
+    return `<tr class="group"><td colspan="6">${esc(a.name.toUpperCase())} ASSEMBLAGE · A${a.n}</td></tr>` + (list.length ? list.map((x) => `<tr>
+      <td class="code">${esc(placeCode(x.e, a.id))}</td><td>${shapeIcon(x.e.type, x.e.placements[a.id].voice)}</td><td>${esc(x.e.name)}</td>
+      <td class="num"><b>${x.d}</b></td><td class="num">${x.s}</td>
+      <td class="bar-cell" style="width:140px">${x.d ? `<span style="width:${Math.round(x.d / max * 120)}px"></span>` : `<em class="muted small">no lines</em>`}</td></tr>`).join("") : `<tr><td colspan="6" class="muted">No elements</td></tr>`);
+  }).join("");
+  const outside = els.filter((e) => e.placements?.[NONE]);
+  const outRows = outside.length ? `<tr class="group"><td colspan="6">NOT IN ANY ASSEMBLAGE · A0 · NOT COUNTED</td></tr>` + outside.map((e) => `<tr class="muted"><td class="code">${esc(placeCode(e, NONE))}</td><td>${shapeIcon(e.type, e.placements[NONE].voice, 16, "#66645D")}</td><td>${esc(e.name)}</td><td class="num">–</td><td class="num">–</td><td></td></tr>`).join("") : "";
+  $("#view").innerHTML = `<div class="grid2" style="grid-template-columns:minmax(0,1fr) 320px">
+    <div class="card"><h2>${esc(tname)} · connections per element <span class="muted" style="font-weight:400">(degree centrality, counted inside each assemblage)</span></h2>
+      <div class="tablewrap"><table><thead><tr><th>No.</th><th></th><th>Element</th><th class="num">In this assemblage</th><th class="num">Sum across assemblages</th><th></th></tr></thead><tbody>${sections}${outRows}</tbody></table></div>
+      <p class="muted small">Each assemblage is its own map, so lines are counted inside it. The sum adds the same element across maps. Dashed lines are counted.</p></div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card"><h2>Most connected</h2>${tops.join("") || `<p class="muted">No elements yet.</p>`}</div>
+      <div class="card"><h2>Summary</h2>
+        <div class="kv"><span>Elements</span><b>${els.length}</b></div>
+        ${assemblages().map((a) => `<div class="kv"><span>A${a.n} elements · lines</span><b>${els.filter((e) => e.placements?.[a.id]).length} · ${rels.filter((r) => r.assemblage === a.id).length}</b></div>`).join("")}
+        <div class="kv"><span>Not in any assemblage</span><b>${outside.length}</b></div></div>
+      <div class="card"><h2>No lines yet</h2>${noLines.length ? noLines.map((t) => `<div>${esc(t)}</div>`).join("") : `<p class="muted" style="margin:0">Every element on a map has at least one line.</p>`}</div>
+      <div class="card"><h2>Download (all teams)</h2>
+        <div style="display:flex;flex-direction:column;gap:8px"><button type="button" class="btn" id="dlEl">Elements and counts (CSV)</button><button type="button" class="btn" id="dlRel">Relations (CSV)</button></div></div>
+    </div></div>`;
+}
+function csv(rows) { return "﻿" + rows.map((r) => r.map((v) => { const s = String(v ?? ""); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }).join(",")).join("\n"); }
+function download(name, text) {
+  const blob = new Blob([text], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+function exportElements() {
+  const teamName = (id) => (W().teams || []).find((t) => t.id === id)?.name || id;
+  const rows = [["workshop", "team", "element_id", "placement_code", "element_code", "type", "name", "assemblage_code", "assemblage_name", "voice", "spoken_by", "source", "where", "degree_in_assemblage", "degree_sum_across"]];
+  const saveTeam = team;
+  for (const t of (W().teams || [])) {
+    team = t.id; const deg = degrees();
+    for (const e of teamElements()) for (const aid of orderedPlacements(e)) {
+      const p = e.placements[aid];
+      rows.push([WID, teamName(t.id), e.id, placeCode(e, aid), elCode(e), e.type === "H" ? "human" : "nonhuman", e.name, asmCode(aid), asmById(aid)?.name, p.voice, p.spokenBy, sourceText(p), p.where, aid === NONE ? "" : (deg[e.id + "|" + aid] || 0), aid === NONE ? "" : sumDeg(e, deg)]);
+    }
+  }
+  team = saveTeam;
+  download(`situational-mapping-elements-${WID}.csv`, csv(rows));
+}
+function exportRelations() {
+  const teamName = (id) => (W().teams || []).find((t) => t.id === id)?.name || id;
+  const rows = [["workshop", "team", "line_no", "assemblage_code", "assemblage_name", "from_code", "from_name", "relation", "to_code", "to_name", "disputed"]];
+  for (const r of [...data.relations].sort((a, b) => (a.team + a.no).localeCompare(b.team + b.no, undefined, { numeric: true }))) {
+    const f = elById(r.from), t = elById(r.to);
+    rows.push([WID, teamName(r.team), r.no, asmCode(r.assemblage), asmById(r.assemblage)?.name, f ? placeCode(f, r.assemblage) : "", f?.name, r.verb, t ? placeCode(t, r.assemblage) : "", t?.name, r.disputed ? "yes" : "no"]);
+  }
+  download(`situational-mapping-relations-${WID}.csv`, csv(rows));
+}
+
+/* ---------- events ---------- */
+document.addEventListener("click", (ev) => {
+  const el = ev.target.closest("button, [data-node]");
+  if (!el) return;
+  const d = el.dataset;
+  if (d.tab) { tab = d.tab; ls.set("sm-tab", tab); pendingDelete = null; render(); return; }
+  // setup
+  if (el.id === "teamAdd") return saveW((w) => { w.teams.push({ id: "t" + (w.nextTeam || w.teams.length + 1), name: "Team " + (w.nextTeam || w.teams.length + 1) }); w.nextTeam = (w.nextTeam || w.teams.length) + 1; });
+  if (d.teamDel !== undefined) return saveW((w) => w.teams.splice(+d.teamDel, 1));
+  if (el.id === "asmAdd") return saveW((w) => { const n = w.nextAssemblage || (w.assemblages.length + 1); w.assemblages.push({ id: "a" + n, n, name: "New assemblage" }); w.nextAssemblage = n + 1; });
+  if (d.asmDel !== undefined) return saveW((w) => w.assemblages.splice(+d.asmDel, 1));
+  if (el.id === "srcAdd") return saveW((w) => w.sources.push("New source"));
+  if (d.srcDel !== undefined) return saveW((w) => w.sources.splice(+d.srcDel, 1));
+  // elements
+  if (el.id === "formCancel") { form = newForm(); renderForm(); return; }
+  if (d.edit) {
+    const e = elById(d.edit); if (!e) return;
+    form = { editId: e.id, name: e.name, type: e.type, checked: {}, place: {} };
+    for (const aid of Object.keys(e.placements || {})) { form.checked[aid] = true; form.place[aid] = { ...blankPlace(), ...e.placements[aid] }; }
+    renderForm(); $("#fName")?.focus(); window.scrollTo({ top: 0, behavior: "smooth" }); return;
+  }
+  if (d.del) { pendingDelete = { kind: "el", id: d.del }; renderElList(); return; }
+  if (d.delNo !== undefined) { pendingDelete = null; tab === "map" ? refreshSide() : renderElList(); return; }
+  if (d.delYes) {
+    const id = d.delYes; pendingDelete = null;
+    store.deleteDocs([id], data.relations.filter((r) => r.from === id || r.to === id).map((r) => r.id));
+    if (form.editId === id) { form = newForm(); renderForm(); }
+    return;
+  }
+  // map
+  if (el.id === "relClear") { selection = { aid: null, from: null, to: null }; relDraft = { verb: "", disputed: false }; renderMap(); return; }
+  if (el.id === "relSave") { saveRelation(); return; }
+  if (d.rdel) { pendingDelete = { kind: "rel", id: d.rdel }; refreshSide(); return; }
+  if (d.rdelYes) { pendingDelete = null; store.deleteDocs([], [d.rdelYes]); return; }
+  if (d.rdisp) { const r = data.relations.find((x) => x.id === d.rdisp); if (r) store.updateRelation(r.id, { disputed: !r.disputed }); return; }
+  // count
+  if (el.id === "dlEl") return exportElements();
+  if (el.id === "dlRel") return exportRelations();
+});
+
+document.addEventListener("keydown", (ev) => {
+  const n = ev.target.closest?.("[data-node]");
+  if (n && (ev.key === "Enter" || ev.key === " ")) { ev.preventDefault(); clickNode(n.dataset.node, n.dataset.asm); }
+  if (ev.target.id === "relVerb" && ev.key === "Enter") { ev.preventDefault(); saveRelation(); }
+});
+
+document.addEventListener("input", (ev) => {
+  const t = ev.target;
+  if (t.id === "fName") form.name = t.value;
+  else if (t.dataset.p && t.dataset.k && t.tagName === "INPUT") { (form.place[t.dataset.p] ||= blankPlace())[t.dataset.k] = t.value; }
+  else if (t.id === "relVerb") { relDraft.verb = t.value; const b = $("#relSave"); if (b) b.disabled = !(selection.from && selection.to && t.value.trim()); }
+});
+
+document.addEventListener("change", (ev) => {
+  const t = ev.target;
+  if (t.id === "teamSel") { team = t.value; ls.set("sm-team", team); selection = { aid: null, from: null, to: null }; pendingDelete = null; if (!form.editId) form = newForm(); render(); return; }
+  if (t.name === "fType") { form.type = t.value; return; }
+  if (t.dataset.chk) { form.checked[t.dataset.chk] = t.checked; renderForm(); return; }
+  if (t.dataset.p && t.tagName === "SELECT") { (form.place[t.dataset.p] ||= blankPlace())[t.dataset.k] = t.value; renderForm(); return; }
+  if (t.id === "relDisp") { relDraft.disputed = t.checked; return; }
+  // setup fields save on change
+  if (t.id === "sitName") return saveW((w) => { w.situation = t.value.trim(); });
+  if (t.dataset.teamName !== undefined) return saveW((w) => { w.teams[+t.dataset.teamName].name = t.value.trim() || "Team"; });
+  if (t.dataset.asmName !== undefined) return saveW((w) => { w.assemblages[+t.dataset.asmName].name = t.value.trim() || "Assemblage"; });
+  if (t.dataset.srcName !== undefined) return saveW((w) => { w.sources[+t.dataset.srcName] = t.value.trim() || "Source"; });
+});
+
+document.addEventListener("submit", (ev) => { if (ev.target.id === "elForm") { ev.preventDefault(); submitForm(); } });
+
+/* dragging nodes */
+let drag = null;
+document.addEventListener("pointerdown", (ev) => {
+  const n = ev.target.closest?.("[data-node]");
+  if (!n) return;
+  const svg = n.ownerSVGElement;
+  drag = { id: n.dataset.node, aid: n.dataset.asm, svg, g: n, sx: ev.clientX, sy: ev.clientY, moved: false, dx: 0, dy: 0 };
+  n.setPointerCapture?.(ev.pointerId);
+});
+document.addEventListener("pointermove", (ev) => {
+  if (!drag) return;
+  const dist = Math.hypot(ev.clientX - drag.sx, ev.clientY - drag.sy);
+  if (!drag.moved && dist < 5) return;
+  drag.moved = true; dragging = true;
+  const m = drag.svg.getScreenCTM().inverse();
+  const p0 = new DOMPoint(drag.sx, drag.sy).matrixTransform(m), p1 = new DOMPoint(ev.clientX, ev.clientY).matrixTransform(m);
+  drag.dx = p1.x - p0.x; drag.dy = p1.y - p0.y;
+  drag.g.setAttribute("transform", `translate(${drag.dx} ${drag.dy})`);
+});
+document.addEventListener("pointerup", () => {
+  if (!drag) return;
+  const d = drag; drag = null;
+  if (!d.moved) { clickNode(d.id, d.aid); return; }
+  dragging = false;
+  const e = elById(d.id); if (!e) return;
+  const list = layoutDefaults(teamElements().filter((x) => x.placements?.[d.aid]).map((x) => ({ e: x, p: x.placements[d.aid] })));
+  const cur = list.find((x) => x.e.id === d.id);
+  const nx = Math.min(0.95, Math.max(0.05, cur.x + d.dx / VB_W)), ny = Math.min(0.93, Math.max(0.06, cur.y + d.dy / VB_H));
+  e.placements[d.aid].x = nx; e.placements[d.aid].y = ny; // optimistic
+  renderMap();
+  store.setPosition(d.id, d.aid, nx, ny);
+});
+
+/* ---------- start ---------- */
+(async function start() {
+  render();
+  $("#view").innerHTML = `<div class="empty">Loading…</div>`;
+  try {
+    store = DEMO ? makeDemoStore() : await makeFirebaseStore();
+  } catch (e) {
+    console.error(e);
+    showBanner("The database library did not load. Check the internet connection and reload. To try the page without a database, add <code>?demo</code> to the address.", true);
+    return;
+  }
+  if (DEMO) showBanner("Demo mode: example data, nothing is saved. Remove <code>?demo</code> from the address to use the real workshop.");
+  store.subscribe((snap) => {
+    data = snap;
+    if (dragging) return;
+    // keep typing intact on tab 1: only refresh the list
+    if (tab === "elements" && $("#elForm")) { renderChrome(); renderElList(); return; }
+    if (tab === "setup" && document.activeElement && document.activeElement.closest("#view") && document.activeElement.tagName === "INPUT") return;
+    if (tab === "map" && document.activeElement?.id === "relVerb") { refreshMapKeepVerb(); return; }
+    render();
+  });
+})();
+function refreshMapKeepVerb() {
+  const v = $("#relVerb"); const pos = v ? v.selectionStart : null;
+  renderMap();
+  const nv = $("#relVerb"); if (nv) { nv.focus(); if (pos !== null) nv.setSelectionRange(pos, pos); }
+}
+</script>
+</body>
+</html>
