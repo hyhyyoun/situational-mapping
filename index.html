@@ -592,31 +592,32 @@ function degrees() {
   }
   return deg;
 }
-function sumDeg(e, deg) { return orderedPlacements(e).filter((a) => a !== NONE).reduce((s, a) => s + (deg[e.id + "|" + a] || 0), 0); }
+function normDeg(d, n) { return n > 1 ? d / (n - 1) : 0; }
+function fmt(c) { return c.toFixed(2); }
 function renderCount() {
   const els = teamElements(), deg = degrees(), rels = teamRelations();
   const tname = (W().teams || []).find((t) => t.id === team)?.name || "";
   let tops = [], noLines = [];
   const sections = assemblages().map((a) => {
-    const list = els.filter((e) => e.placements?.[a.id]).map((e) => ({ e, d: deg[e.id + "|" + a.id] || 0, s: sumDeg(e, deg) })).sort((x, y) => y.d - x.d || elCode(x.e).localeCompare(elCode(y.e)));
-    const max = Math.max(1, ...list.map((x) => x.d));
+    const onMap = els.filter((e) => e.placements?.[a.id]);
+    const list = onMap.map((e) => ({ e, d: deg[e.id + "|" + a.id] || 0, c: normDeg(deg[e.id + "|" + a.id] || 0, onMap.length) })).sort((x, y) => y.d - x.d || elCode(x.e).localeCompare(elCode(y.e)));
     if (list.length) {
       const top = list[0].d;
       const leaders = list.filter((x) => x.d === top);
-      tops.push(`<div class="kv"><span>${esc(a.name)} · A${a.n}</span><b>${top === 0 ? "no lines" : leaders.length > 1 ? `tie at ${top} (${leaders.length})` : `${esc(elCode(leaders[0].e) + " " + leaders[0].e.name)} (${top})`}</b></div>`);
+      tops.push(`<div class="kv"><span>${esc(a.name)} · A${a.n}</span><b>${top === 0 ? "no lines" : leaders.length > 1 ? `tie at ${fmt(leaders[0].c)} (${leaders.length})` : `${esc(elCode(leaders[0].e) + " " + leaders[0].e.name)} (${fmt(leaders[0].c)})`}</b></div>`);
     }
     list.filter((x) => x.d === 0).forEach((x) => noLines.push(placeCode(x.e, a.id) + " " + x.e.name));
     return `<tr class="group"><td colspan="6">${esc(a.name.toUpperCase())} ASSEMBLAGE · A${a.n}</td></tr>` + (list.length ? list.map((x) => `<tr>
       <td class="code">${esc(placeCode(x.e, a.id))}</td><td>${shapeIcon(x.e.type, x.e.placements[a.id].voice)}</td><td>${esc(x.e.name)}</td>
-      <td class="num"><b>${x.d}</b></td><td class="num">${x.s}</td>
-      <td class="bar-cell" style="width:140px">${x.d ? `<span style="width:${Math.round(x.d / max * 120)}px"></span>` : `<em class="muted small">no lines</em>`}</td></tr>`).join("") : `<tr><td colspan="6" class="muted">No elements</td></tr>`);
+      <td class="num"><b>${fmt(x.c)}</b></td><td class="num muted">${x.d}</td>
+      <td class="bar-cell" style="width:140px">${x.d ? `<span style="width:${Math.max(2, Math.round(x.c * 120))}px"></span>` : `<em class="muted small">no lines</em>`}</td></tr>`).join("") : `<tr><td colspan="6" class="muted">No elements</td></tr>`);
   }).join("");
   const outside = els.filter((e) => e.placements?.[NONE]);
   const outRows = outside.length ? `<tr class="group"><td colspan="6">NOT IN ANY ASSEMBLAGE · A0 · NOT COUNTED</td></tr>` + outside.map((e) => `<tr class="muted"><td class="code">${esc(placeCode(e, NONE))}</td><td>${shapeIcon(e.type, e.placements[NONE].voice, 16, "#66645D")}</td><td>${esc(e.name)}</td><td class="num">–</td><td class="num">–</td><td></td></tr>`).join("") : "";
   $("#view").innerHTML = `<div class="countgrid">
-    <div class="card"><h2>${esc(tname)} · connections per element <span class="muted" style="font-weight:400">(degree centrality, counted inside each assemblage)</span></h2>
-      <div class="tablewrap"><table><thead><tr><th>No.</th><th></th><th>Element</th><th class="num">In this map</th><th class="num">Total</th><th></th></tr></thead><tbody>${sections}${outRows}</tbody></table></div>
-      <p class="muted small">In this map: lines counted inside that assemblage’s map. Total: the same element added across maps. Dashed lines are counted.</p></div>
+    <div class="card"><h2>${esc(tname)} · connections per element <span class="muted" style="font-weight:400">(counted inside each assemblage)</span></h2>
+      <div class="tablewrap"><table><thead><tr><th>No.</th><th></th><th>Element</th><th class="num">Normalized degree centrality</th><th class="num">Lines</th><th></th></tr></thead><tbody>${sections}${outRows}</tbody></table></div>
+      <p class="muted small">Normalized degree centrality = lines ÷ (elements in that map − 1), from 0 to 1. Counted inside each assemblage’s map. Dashed lines are counted.</p></div>
     <div style="display:flex;flex-direction:column;gap:16px">
       <div class="card"><h2>Most connected</h2>${tops.join("") || `<p class="muted">No elements yet.</p>`}</div>
       <div class="card"><h2>Summary</h2>
@@ -636,13 +637,13 @@ function download(name, text) {
 }
 function exportElements() {
   const teamName = (id) => (W().teams || []).find((t) => t.id === id)?.name || id;
-  const rows = [["workshop", "team", "element_id", "placement_code", "element_code", "type", "name", "assemblage_code", "assemblage_name", "voice", "spoken_by", "source", "where", "degree_in_assemblage", "degree_sum_across"]];
+  const rows = [["workshop", "team", "element_id", "placement_code", "element_code", "type", "name", "assemblage_code", "assemblage_name", "voice", "spoken_by", "source", "where", "degree_in_assemblage", "elements_in_assemblage", "degree_centrality_normalized"]];
   const saveTeam = team;
   for (const t of (W().teams || [])) {
-    team = t.id; const deg = degrees();
+    team = t.id; const deg = degrees(); const tEls = teamElements(); const nOn = (aid) => tEls.filter((e) => e.placements?.[aid]).length;
     for (const e of teamElements()) for (const aid of orderedPlacements(e)) {
       const p = e.placements[aid];
-      rows.push([WID, teamName(t.id), e.id, placeCode(e, aid), elCode(e), e.type === "H" ? "human" : "nonhuman", e.name, asmCode(aid), asmById(aid)?.name, p.voice, p.spokenBy, sourceText(p), p.where, aid === NONE ? "" : (deg[e.id + "|" + aid] || 0), aid === NONE ? "" : sumDeg(e, deg)]);
+      rows.push([WID, teamName(t.id), e.id, placeCode(e, aid), elCode(e), e.type === "H" ? "human" : "nonhuman", e.name, asmCode(aid), asmById(aid)?.name, p.voice, p.spokenBy, sourceText(p), p.where, aid === NONE ? "" : (deg[e.id + "|" + aid] || 0), aid === NONE ? "" : nOn(aid), aid === NONE ? "" : normDeg(deg[e.id + "|" + aid] || 0, nOn(aid)).toFixed(3)]);
     }
   }
   team = saveTeam;
