@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Situational Mapping</title>
+<title>More-than-Human Situating</title>
 <style>
 :root {
   --bg: #F6F5F1;
@@ -121,13 +121,48 @@ td.code { color: var(--muted); white-space: nowrap; font-variant-numeric: tabula
 .listed .item input { flex: 1; min-width: 0; }
 .tag { display: inline-block; padding: 1px 6px; border: 1px solid #B9B6AC; border-radius: 4px; font-size: 12px; font-weight: 700; }
 .confirm { display: inline-flex; gap: 6px; align-items: center; }
+nav { align-items: flex-end; gap: 10px; }
+@media (max-width: 700px) { header { position: static; } .bar { padding: 12px 16px; } main { padding: 16px 16px 40px; } }
+.stage { display: flex; flex-direction: column; gap: 3px; }
+.stage .sl { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding-left: 2px; }
+.stage .btns { display: flex; flex-wrap: wrap; gap: 4px; }
+.cmaps { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 20px; }
+.cmaps svg { display: block; width: 100%; height: auto; }
+.seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.seg button { padding: 7px 12px; border: 0; background: var(--panel); }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: #FFF; }
+.controls { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: flex-end; margin-bottom: 14px; }
+.ctl { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.ctl > .lab, .ctl > label { font-size: 12px; font-weight: 600; color: var(--muted); }
+textarea { font: inherit; color: inherit; padding: 8px 10px; border: 1px solid #B9B6AC; border-radius: 6px; background: #FFF; width: 100%; resize: vertical; }
+.ivshow { padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--soft); line-height: 1.45; }
+.ratelist { display: flex; flex-direction: column; gap: 10px; }
+.rate { border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+.rate.todo { border-style: dashed; }
+.rate .top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.rate .top b { font-weight: 600; }
+.rate .top .c { margin-left: auto; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.rate .row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 160px); gap: 8px; }
+@media (max-width: 560px) { .rate .row { grid-template-columns: minmax(0, 1fr); } }
+.vol { display: flex; align-items: center; gap: 10px; }
+.vol input { width: 200px; max-width: 50vw; accent-color: var(--accent); }
+.vol b { font-variant-numeric: tabular-nums; }
+.mgrid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 1000px) { .mgrid { grid-template-columns: minmax(0, 1fr); } }
+.plot svg { display: block; width: 100%; height: auto; }
+.pill { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 7px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.pill.crit { border-color: #C8571E; color: #C8571E; }
+.pill.struct { border-color: var(--accent); color: var(--accent); }
+.pill.vul { border-color: #1E8556; color: #1E8556; }
+.unrated { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .empty { padding: 24px; text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: 8px; }
 </style>
 </head>
 <body>
 <header>
   <div class="bar">
-    <div class="brand">Situational Mapping<small id="situationName"></small></div>
+    <div class="brand">More-than-Human Situating<small id="situationName"></small></div>
     <nav id="tabs" aria-label="Steps"></nav>
     <div class="teampick"><label for="teamSel">Team</label><select id="teamSel"></select></div>
   </div>
@@ -204,6 +239,9 @@ function makeDemoStore() {
   s.relations.r1 = { team: "t1", assemblage: "a2", from: ids.H1, to: ids.N2, verb: "suffers noise from", disputed: false, no: 1, createdAt: 1 };
   s.relations.r2 = { team: "t1", assemblage: "a2", from: ids.N2, to: ids.N1, verb: "runs over", disputed: false, no: 2, createdAt: 2 };
   s.relations.r3 = { team: "t1", assemblage: "a1", from: ids.H2, to: ids.N1, verb: "cools servers with", disputed: false, no: 3, createdAt: 3 };
+  s.workshop.interventions = { t1: "Build a water-recycling cooling plant so the data centre draws less from the local supply." };
+  s.elements[ids.N1].placements.a2.vul = { dim: "Biological/ecological flourishing", lv: 3, why: "Discharge returns to the river system." };
+  s.elements[ids.N2].placements.a2.vul = { dim: "Material durability and care", lv: 0, why: "" };
   return {
     subscribe(cb) { listeners.push(cb); setTimeout(() => cb(snapshot()), 0); },
     saveWorkshop(w) { s.workshop = structuredClone(w); emit(); return P(); },
@@ -212,7 +250,9 @@ function makeDemoStore() {
     setPosition(id, aid, x, y) { const p = s.elements[id]?.placements?.[aid]; if (p) { p.x = x; p.y = y; } emit(); return P(); },
     deleteDocs(elementIds, relationIds) { elementIds.forEach((i) => delete s.elements[i]); relationIds.forEach((i) => delete s.relations[i]); emit(); return P(); },
     addRelation(d) { s.relations[uid()] = { ...d, createdAt: Date.now() }; emit(); return P(); },
-    updateRelation(id, d) { s.relations[id] = { ...s.relations[id], ...d }; emit(); return P(); }
+    updateRelation(id, d) { s.relations[id] = { ...s.relations[id], ...d }; emit(); return P(); },
+    setVul(id, aid, v) { const p = s.elements[id]?.placements?.[aid]; if (p) p.vul = v; emit(); return P(); },
+    setIntervention(tid, v) { s.workshop.interventions = { ...(s.workshop.interventions || {}), [tid]: v }; emit(); return P(); }
   };
 }
 
@@ -249,7 +289,9 @@ async function makeFirebaseStore() {
       return b.commit().catch(onErr);
     },
     addRelation(d) { return fs.addDoc(rCol, { ...d, createdAt: fs.serverTimestamp() }).catch(onErr); },
-    updateRelation(id, d) { return fs.updateDoc(fs.doc(rCol, id), d).catch(onErr); }
+    updateRelation(id, d) { return fs.updateDoc(fs.doc(rCol, id), d).catch(onErr); },
+    setVul(id, aid, v) { return fs.updateDoc(fs.doc(eCol, id), new fs.FieldPath("placements", aid, "vul"), v).catch(onErr); },
+    setIntervention(tid, v) { return fs.updateDoc(wRef, new fs.FieldPath("interventions", tid), v).catch(onErr); }
   };
 }
 
@@ -283,8 +325,11 @@ function newForm() { return { editId: null, name: "", type: "N", checked: {}, pl
 /* ---------- rendering ---------- */
 function renderChrome() {
   $("#situationName").textContent = W().situation ? "· " + W().situation : "";
-  const tabs = [...(ADMIN ? [["setup", "0 Setup"]] : []), ["elements", "1 Elements"], ["map", "2 Map"], ["count", "3 Connections"]];
-  $("#tabs").innerHTML = tabs.map(([k, l]) => `<button type="button" data-tab="${k}" ${k === tab ? 'aria-current="page"' : ""}>${l}</button>`).join("");
+  const b = ([k, l]) => `<button type="button" data-tab="${k}" ${k === tab ? 'aria-current="page"' : ""}>${l}</button>`;
+  const stage = (label, list) => `<div class="stage"><span class="sl">${label}</span><div class="btns">${list.map(b).join("")}</div></div>`;
+  $("#tabs").innerHTML = (ADMIN ? stage("Setup", [["setup", "0 Setup"]]) : "")
+    + stage("X · Centrality", [["elements", "1 Elements"], ["map", "2 Map"], ["count", "3 Centrality"]])
+    + stage("Y · Vulnerability", [["vul", "4 Vulnerability"]]) + stage("X × Y · Matrix", [["matrix", "5 Matrix"]]);
   const teams = W().teams || [];
   if (!teams.find((t) => t.id === team) && teams[0]) { team = teams[0].id; }
   $("#teamSel").innerHTML = teams.map((t) => `<option value="${esc(t.id)}" ${t.id === team ? "selected" : ""}>${esc(t.name)}</option>`).join("");
@@ -296,6 +341,8 @@ function render() {
   if (tab === "setup") renderSetup();
   else if (tab === "elements") renderElements();
   else if (tab === "map") renderMap();
+  else if (tab === "vul") renderVul();
+  else if (tab === "matrix") renderMatrix();
   else renderCount();
 }
 
@@ -614,7 +661,7 @@ function renderCount() {
   }).join("");
   const outside = els.filter((e) => e.placements?.[NONE]);
   const outRows = outside.length ? `<tr class="group"><td colspan="6">NOT IN ANY ASSEMBLAGE · A0 · NOT COUNTED</td></tr>` + outside.map((e) => `<tr class="muted"><td class="code">${esc(placeCode(e, NONE))}</td><td>${shapeIcon(e.type, e.placements[NONE].voice, 16, "#66645D")}</td><td>${esc(e.name)}</td><td class="num">–</td><td class="num">–</td><td></td></tr>`).join("") : "";
-  $("#view").innerHTML = `<div class="countgrid">
+  $("#view").innerHTML = `<div class="cmaps">${centralityMaps(els, deg)}</div><div class="countgrid">
     <div class="card"><h2>${esc(tname)} · connections per element <span class="muted" style="font-weight:400">(counted inside each assemblage)</span></h2>
       <div class="tablewrap"><table><thead><tr><th>No.</th><th></th><th>Element</th><th class="num">Normalized degree centrality</th><th class="num">Lines</th><th></th></tr></thead><tbody>${sections}${outRows}</tbody></table></div>
       <p class="muted small">Normalized degree centrality = lines ÷ (elements in that map − 1), from 0 to 1. Counted inside each assemblage’s map. Dashed lines are counted.</p></div>
@@ -637,17 +684,17 @@ function download(name, text) {
 }
 function exportElements() {
   const teamName = (id) => (W().teams || []).find((t) => t.id === id)?.name || id;
-  const rows = [["workshop", "team", "element_id", "placement_code", "element_code", "type", "name", "assemblage_code", "assemblage_name", "voice", "spoken_by", "source", "where", "degree_in_assemblage", "elements_in_assemblage", "degree_centrality_normalized"]];
+  const rows = [["workshop", "team", "element_id", "placement_code", "element_code", "type", "name", "assemblage_code", "assemblage_name", "voice", "spoken_by", "source", "where", "degree_in_assemblage", "elements_in_assemblage", "degree_centrality_normalized", "intervention", "integrity_dimension", "vulnerability", "vulnerability_reason"]];
   const saveTeam = team;
   for (const t of (W().teams || [])) {
     team = t.id; const deg = degrees(); const tEls = teamElements(); const nOn = (aid) => tEls.filter((e) => e.placements?.[aid]).length;
     for (const e of teamElements()) for (const aid of orderedPlacements(e)) {
       const p = e.placements[aid];
-      rows.push([WID, teamName(t.id), e.id, placeCode(e, aid), elCode(e), e.type === "H" ? "human" : "nonhuman", e.name, asmCode(aid), asmById(aid)?.name, p.voice, p.spokenBy, sourceText(p), p.where, aid === NONE ? "" : (deg[e.id + "|" + aid] || 0), aid === NONE ? "" : nOn(aid), aid === NONE ? "" : normDeg(deg[e.id + "|" + aid] || 0, nOn(aid)).toFixed(3)]);
+      rows.push([WID, teamName(t.id), e.id, placeCode(e, aid), elCode(e), e.type === "H" ? "human" : "nonhuman", e.name, asmCode(aid), asmById(aid)?.name, p.voice, p.spokenBy, sourceText(p), p.where, aid === NONE ? "" : (deg[e.id + "|" + aid] || 0), aid === NONE ? "" : nOn(aid), aid === NONE ? "" : normDeg(deg[e.id + "|" + aid] || 0, nOn(aid)).toFixed(3), e.type === "N" && aid !== NONE ? (W().interventions?.[t.id] || "") : "", p.vul?.dim || "", typeof p.vul?.lv === "number" ? LEVELS[p.vul.lv] : "", p.vul?.why || ""]);
     }
   }
   team = saveTeam;
-  download(`situational-mapping-elements-${WID}.csv`, csv(rows));
+  download(`mth-situating-elements-${WID}.csv`, csv(rows));
 }
 function exportRelations() {
   const teamName = (id) => (W().teams || []).find((t) => t.id === id)?.name || id;
@@ -656,7 +703,120 @@ function exportRelations() {
     const f = elById(r.from), t = elById(r.to);
     rows.push([WID, teamName(r.team), r.no, asmCode(r.assemblage), asmById(r.assemblage)?.name, f ? placeCode(f, r.assemblage) : "", f?.name, r.verb, t ? placeCode(t, r.assemblage) : "", t?.name, r.disputed ? "yes" : "no"]);
   }
-  download(`situational-mapping-relations-${WID}.csv`, csv(rows));
+  download(`mth-situating-relations-${WID}.csv`, csv(rows));
+}
+
+/* ----- tab 3: centrality maps ----- */
+function centralityMaps(els, deg) {
+  return assemblages().map((a) => {
+    const onMap = els.filter((e) => e.placements?.[a.id]);
+    const n = onMap.length;
+    const nodes = layoutDefaults(onMap.map((e) => ({ e, p: e.placements[a.id] })));
+    const pos = Object.fromEntries(nodes.map((x) => [x.e.id, [x.x * VB_W, x.y * VB_H]]));
+    const lines = teamRelations().filter((r) => r.assemblage === a.id && pos[r.from] && pos[r.to]).map((r) => `<line x1="${pos[r.from][0]}" y1="${pos[r.from][1]}" x2="${pos[r.to][0]}" y2="${pos[r.to][1]}" stroke="#D6D3CA" stroke-width="1.5"/>`).join("");
+    const shapes = nodes.map(({ e }) => {
+      const [cx, cy] = pos[e.id], c = normDeg(deg[e.id + "|" + a.id] || 0, n);
+      if (e.type === "H") return `<circle cx="${cx}" cy="${cy}" r="7" fill="#FFF" stroke="#9A978E" stroke-width="1.5"/><text x="${cx}" y="${cy + 21}" text-anchor="middle" font-size="11" fill="#66645D">${esc(elCode(e))}</text>`;
+      const h = 9 + c * 26;
+      return `<path d="M${cx} ${cy - h} L${cx + h * 1.1} ${cy + h * .8} L${cx - h * 1.1} ${cy + h * .8} Z" fill="#FFF" stroke="${COL.N.stroke}" stroke-width="2.5" stroke-linejoin="round"/>
+        <text x="${cx}" y="${cy + h * .8 + 15}" text-anchor="middle" font-size="12" font-weight="700" fill="#1F1F1C" paint-order="stroke" stroke="#FFF" stroke-width="4" stroke-linejoin="round">${esc(elCode(e) + " " + (e.name.length > 20 ? e.name.slice(0, 19) + "…" : e.name))}</text>
+        <text x="${cx}" y="${cy + h * .8 + 29}" text-anchor="middle" font-size="11" fill="${COL.N.stroke}" paint-order="stroke" stroke="#FFF" stroke-width="4" stroke-linejoin="round">${fmt(c)}</text>`;
+    }).join("");
+    return `<div class="mapcard"><div class="head"><b>${esc(a.name)} · A${a.n}</b><span class="muted small">triangle size = centrality</span></div>
+      ${n ? `<svg viewBox="0 0 ${VB_W} ${VB_H + 20}" role="img" aria-label="${esc(a.name)} map sized by centrality">${lines}${shapes}</svg>` : `<div class="empty" style="margin:14px">No elements</div>`}</div>`;
+  }).join("");
+}
+
+/* ----- tabs 4 and 5: vulnerability and matrix ----- */
+const LEVELS = ["Low", "Medium-Low", "Medium", "High"];
+const ivOf = (tid) => W().interventions?.[tid] || "";
+const DIMS = ["Biological/ecological flourishing", "Sociotechnical operational functionality", "Material durability and care"];
+let vAsm = ls.get("sm-vasm", "a1");
+let topN = null;
+let split = ls.get("sm-split", "median");
+function nonhumansIn(aid) {
+  const els = teamElements(), deg = degrees();
+  const onMap = els.filter((e) => e.placements?.[aid]);
+  return onMap.filter((e) => e.type === "N").map((e) => ({ e, p: e.placements[aid], d: deg[e.id + "|" + aid] || 0, c: normDeg(deg[e.id + "|" + aid] || 0, onMap.length) }))
+    .sort((x, y) => y.c - x.c || x.e.no - y.e.no);
+}
+function asmSeg() {
+  if (!assemblages().find((a) => a.id === vAsm) && assemblages()[0]) vAsm = assemblages()[0].id;
+  return `<div class="seg" role="group" aria-label="Assemblage">${assemblages().map((a) => `<button type="button" data-vasm="${a.id}" aria-pressed="${a.id === vAsm}">A${a.n} ${esc(a.name)}</button>`).join("")}</div>`;
+}
+function renderVul() {
+  const a = asmById(vAsm) || assemblages()[0]; if (!a) { $("#view").innerHTML = `<div class="empty">No assemblages yet. Add them in tab 0.</div>`; return; }
+  const list = nonhumansIn(vAsm);
+  const done = list.filter((x) => typeof x.p.vul?.lv === "number").length;
+  const cards = list.map((x) => {
+    const v = x.p.vul || {}, rated = typeof v.lv === "number";
+    return `<div class="rate${rated ? "" : " todo"}">
+      <div class="top">${shapeIcon("N", x.p.voice)}<span class="code muted small">${esc(placeCode(x.e, vAsm))}</span><b>${esc(x.e.name)}</b><span class="c">centrality ${fmt(x.c)}</span></div>
+      <div class="row"><select data-vid="${x.e.id}" data-vf="dim" aria-label="Integrity dimension, ${esc(x.e.name)}"><option value="">Integrity dimension…</option>${DIMS.map((d) => `<option ${v.dim === d ? "selected" : ""}>${esc(d)}</option>`).join("")}</select>
+      <select data-vid="${x.e.id}" data-vf="lv" aria-label="Vulnerability, ${esc(x.e.name)}"><option value="">Vulnerability…</option>${LEVELS.map((l, i) => `<option value="${i}" ${v.lv === i ? "selected" : ""}>${l}</option>`).join("")}</select></div>
+      <textarea data-vid="${x.e.id}" data-vf="why" rows="2" placeholder="Reason" aria-label="Reason, ${esc(x.e.name)}">${esc(v.why || "")}</textarea></div>`;
+  }).join("");
+  $("#view").innerHTML = `<div class="card">
+    <div class="controls"><div class="ctl"><span class="lab">Assemblage</span>${asmSeg()}</div><span class="muted small">Rated ${done} / ${list.length}</span></div>
+    <div class="ctl" style="max-width:760px;margin-bottom:16px"><label for="ivText">Intervention under development</label>
+      <textarea id="ivText" rows="2" placeholder="Write the intervention in your own words">${esc(ivOf(team))}</textarea>
+      <span class="muted small">This team’s intervention. Vulnerability below is rated against it.</span></div>
+    <p class="muted small" style="margin:0 0 10px">Nonhumans in this team’s ${esc(a.name)} map, listed by centrality. One rating each.</p>
+    <div class="ratelist">${cards || `<div class="empty">No nonhumans in this map yet.</div>`}</div></div>`;
+}
+function saveVul(eid, field, value) {
+  const e = elById(eid); if (!e) return;
+  const p = e.placements[vAsm]; const v = { dim: "", lv: null, why: "", ...(p.vul || {}) };
+  v[field] = field === "lv" ? (value === "" ? null : +value) : value;
+  p.vul = v; // optimistic
+  store.setVul(eid, vAsm, v);
+}
+function quadrant(c, lv, cs) {
+  const hiC = c >= cs, hiV = lv >= 2;
+  return hiC && hiV ? ["Critical", "crit"] : hiC ? ["Structural", "struct"] : hiV ? ["Vulnerable", "vul"] : ["Latent", ""];
+}
+function renderMatrix(target = $("#view")) {
+  const a = asmById(vAsm) || assemblages()[0]; if (!a) { target.innerHTML = `<div class="empty">No assemblages yet.</div>`; return; }
+  const all = nonhumansIn(vAsm);
+  if (topN === null || topN > all.length) topN = all.length;
+  const k = Math.max(1, topN);
+  const cut = all.length ? all[Math.min(k, all.length) - 1].c : 0;
+  const vis = all.filter((x) => x.c >= cut);
+  const cvals = vis.map((x) => x.c).sort((p, q) => p - q), m = cvals.length >> 1;
+  const cs = split === "median" ? (cvals.length ? (cvals.length % 2 ? cvals[m] : (cvals[m - 1] + cvals[m]) / 2) : 0.5) : 0.5;
+  const W2 = 580, H = 440, L = 100, T = 20, PW = W2 - L - 24, PH = H - T - 56;
+  const X = (c) => L + c * PW, Y = (lv) => T + PH - (lv + 0.5) / 4 * PH;
+  let g = `<rect x="${L}" y="${T}" width="${PW}" height="${PH}" fill="#F8F7F3" stroke="#D6D3CA"/>`;
+  const sx = X(cs), sy = T + PH / 2;
+  g += `<line x1="${sx}" y1="${T}" x2="${sx}" y2="${T + PH}" stroke="#66645D" stroke-dasharray="5 4"/><line x1="${L}" y1="${sy}" x2="${L + PW}" y2="${sy}" stroke="#66645D" stroke-dasharray="5 4"/>`;
+  const ql = (x, y, t, an) => `<text x="${x}" y="${y}" text-anchor="${an}" font-size="11" font-weight="700" letter-spacing=".06em" fill="#66645D">${t}</text>`;
+  g += ql(L + 8, T + 16, "VULNERABLE", "start") + ql(L + PW - 8, T + 16, "CRITICAL", "end") + ql(L + 8, T + PH - 8, "LATENT", "start") + ql(L + PW - 8, T + PH - 8, "STRUCTURAL", "end");
+  LEVELS.forEach((l, i) => g += `<text x="${L - 8}" y="${Y(i) + 4}" text-anchor="end" font-size="11" fill="#66645D">${l}</text>`);
+  [0, .25, .5, .75, 1].forEach((t) => g += `<text x="${X(t)}" y="${T + PH + 18}" text-anchor="middle" font-size="11" fill="#66645D">${t.toFixed(2)}</text>`);
+  g += `<text x="${L + PW / 2}" y="${H - 10}" text-anchor="middle" font-size="12" fill="#1F1F1C">X · Centrality (normalized degree) →</text>`;
+  g += `<text transform="translate(16 ${T + PH / 2}) rotate(-90)" text-anchor="middle" font-size="12" fill="#1F1F1C">Y · Vulnerability →</text>`;
+  g += `<text x="${sx + 4}" y="${T + PH - 22}" font-size="10" fill="#66645D">${fmt(cs)}</text>`;
+  const seen = {}, unr = [], rows = [];
+  vis.forEach((x) => {
+    const v = x.p.vul;
+    if (typeof v?.lv !== "number") { unr.push(x); rows.push(`<tr><td class="code">${esc(placeCode(x.e, vAsm))}</td><td>${esc(x.e.name)}</td><td class="num">${fmt(x.c)}</td><td class="muted">not rated</td><td></td></tr>`); return; }
+    const key = x.c.toFixed(3) + "|" + v.lv, j = seen[key] = (seen[key] || 0) + 1;
+    const px = X(x.c) + (j - 1) * 16, py = Y(v.lv), h = 9;
+    g += `<path d="M${px} ${py - h} L${px + h * 1.1} ${py + h * .8} L${px - h * 1.1} ${py + h * .8} Z" fill="#FFF" stroke="${COL.N.stroke}" stroke-width="2.5" stroke-linejoin="round"/><text x="${px > L + PW * 0.65 ? px - 14 : px + 14}" text-anchor="${px > L + PW * 0.65 ? "end" : "start"}" y="${py + 4}" font-size="12" font-weight="600" fill="#1F1F1C" paint-order="stroke" stroke="#F8F7F3" stroke-width="4" stroke-linejoin="round">${esc(elCode(x.e) + " " + x.e.name)}</text>`;
+    const q = quadrant(x.c, v.lv, cs);
+    rows.push(`<tr><td class="code">${esc(placeCode(x.e, vAsm))}</td><td>${esc(x.e.name)}</td><td class="num">${fmt(x.c)}</td><td>${LEVELS[v.lv]}</td><td><span class="pill ${q[1]}">${q[0]}</span></td></tr>`);
+  });
+  target.innerHTML = `<div class="mgrid"><div class="card">
+      <div class="controls"><div class="ctl"><span class="lab">Assemblage</span>${asmSeg()}</div></div>
+      <div class="ctl" style="margin-bottom:14px"><span class="lab">Intervention</span><div class="ivshow">${ivOf(team) ? esc(ivOf(team)) : `<span class="muted">Not written yet. Write it in tab 4.</span>`}</div></div>
+      ${all.length ? `<div class="controls">
+        <div class="ctl"><label for="topN">Nonhumans shown (by centrality)</label><div class="vol"><input id="topN" type="range" min="1" max="${all.length}" value="${k}"><b id="topNval">${vis.length} of ${all.length}${vis.length > k ? " (tie)" : ""}</b></div></div>
+        <div class="ctl"><label for="splitSel">Centrality split</label><select id="splitSel"><option value="median" ${split === "median" ? "selected" : ""}>Median of shown</option><option value="0.5" ${split === "0.5" ? "selected" : ""}>0.5</option></select></div></div>
+      <div id="plotWrap"><div class="plot"><svg viewBox="0 0 ${W2} ${H}" role="img" aria-label="Centrality–vulnerability matrix">${g}</svg></div>
+      ${unr.length ? `<div class="unrated"><span class="muted small">Not rated yet · rate in tab 4</span>${unr.map((x) => `<span class="chip">${shapeIcon("N", x.p.voice, 13)}${esc(elCode(x.e) + " " + x.e.name)}</span>`).join("")}</div>` : ""}</div>`
+      : `<div class="empty">No nonhumans in this map yet.</div>`}</div>
+    <div class="card"><h2>Shown nonhumans</h2><p class="muted small" style="margin:-6px 0 10px">x from tab 3, y from tab 4.</p>
+      <div class="tablewrap"><table><thead><tr><th>No.</th><th>Nonhuman</th><th class="num">x</th><th>y</th><th>Quadrant</th></tr></thead><tbody id="mrows">${rows.join("") || `<tr><td colspan="5" class="muted">None</td></tr>`}</tbody></table></div></div></div>`;
 }
 
 /* ---------- events ---------- */
@@ -702,6 +862,7 @@ document.addEventListener("click", (ev) => {
   if (d.rdel) { pendingDelete = { kind: "rel", id: d.rdel }; refreshSide(); return; }
   if (d.rdelYes) { pendingDelete = null; store.deleteDocs([], [d.rdelYes]); return; }
   if (d.rdisp) { const r = data.relations.find((x) => x.id === d.rdisp); if (r) store.updateRelation(r.id, { disputed: !r.disputed }); return; }
+  if (d.vasm) { vAsm = d.vasm; ls.set("sm-vasm", vAsm); topN = null; render(); return; }
   // count
   if (el.id === "dlEl") return exportElements();
   if (el.id === "dlRel") return exportRelations();
@@ -720,6 +881,7 @@ document.addEventListener("input", (ev) => {
   const t = ev.target;
   if (t.id === "fName") form.name = t.value;
   else if (t.dataset.p && t.dataset.k && t.tagName === "INPUT") { (form.place[t.dataset.p] ||= blankPlace())[t.dataset.k] = t.value; }
+  else if (t.id === "topN") { topN = +t.value; const tmp = document.createElement("div"); renderMatrix(tmp); ["plotWrap", "topNval", "mrows"].forEach((id) => { const o = $("#" + id), n = tmp.querySelector("#" + id); if (o && n) o.replaceWith(n); }); }
   else if (t.id === "relVerb") { relDraft.verb = t.value; const b = $("#relSave"); if (b) b.disabled = !(selection.from && selection.to && t.value.trim()); }
 });
 
@@ -730,6 +892,9 @@ document.addEventListener("change", (ev) => {
   if (t.dataset.chk) { form.checked[t.dataset.chk] = t.checked; renderForm(); return; }
   if (t.dataset.p && t.tagName === "SELECT") { (form.place[t.dataset.p] ||= blankPlace())[t.dataset.k] = t.value; renderForm(); return; }
   if (t.id === "relDisp") { relDraft.disputed = t.checked; return; }
+  if (t.dataset.vid) { saveVul(t.dataset.vid, t.dataset.vf, t.value); if (t.dataset.vf === "lv") renderVul(); return; }
+  if (t.id === "ivText") { const v = t.value.trim(); const w = structuredClone(W()); w.interventions = { ...(w.interventions || {}), [team]: v }; data.workshop = w; store.setIntervention(team, v); return; }
+  if (t.id === "splitSel") { split = t.value; ls.set("sm-split", split); renderMatrix(); return; }
   if (t.id === "labelToggle") { showLabels = t.checked; ls.set("sm-labels", showLabels ? "1" : "0"); renderMap(); return; }
   // setup fields save on change
   if (t.id === "sitName") return saveW((w) => { w.situation = t.value.trim(); });
@@ -792,6 +957,7 @@ document.addEventListener("pointerup", () => {
     if (tab === "elements" && $("#elForm")) { renderChrome(); renderElList(); return; }
     if (tab === "setup" && document.activeElement && document.activeElement.closest("#view") && document.activeElement.tagName === "INPUT") return;
     if (tab === "map" && document.activeElement?.id === "relVerb") { refreshMapKeepVerb(); return; }
+    if (tab === "vul" && document.activeElement && document.activeElement.closest("#view") && /TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
     render();
   });
 })();
