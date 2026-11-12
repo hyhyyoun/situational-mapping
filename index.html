@@ -684,7 +684,7 @@ function download(name, text) {
 }
 function exportElements() {
   const teamName = (id) => (W().teams || []).find((t) => t.id === id)?.name || id;
-  const rows = [["workshop", "team", "element_id", "placement_code", "element_code", "type", "name", "assemblage_code", "assemblage_name", "voice", "spoken_by", "source", "where", "degree_in_assemblage", "elements_in_assemblage", "degree_centrality_normalized", "intervention", "integrity_dimension", "vulnerability", "vulnerability_reason"]];
+  const rows = [["workshop", "team", "element_id", "placement_code", "element_code", "type", "name", "assemblage_code", "assemblage_name", "voice", "spoken_by", "source", "where", "degree_in_assemblage", "elements_in_assemblage", "degree_centrality_normalized", "leverage_point", "integrity_dimension", "vulnerability", "vulnerability_reason"]];
   const saveTeam = team;
   for (const t of (W().teams || [])) {
     team = t.id; const deg = degrees(); const tEls = teamElements(); const nOn = (aid) => tEls.filter((e) => e.placements?.[aid]).length;
@@ -758,9 +758,9 @@ function renderVul() {
   }).join("");
   $("#view").innerHTML = `<div class="card">
     <div class="controls"><div class="ctl"><span class="lab">Assemblage</span>${asmSeg()}</div><span class="muted small">Rated ${done} / ${list.length}</span></div>
-    <div class="ctl" style="max-width:760px;margin-bottom:16px"><label for="ivText">Intervention under development</label>
-      <textarea id="ivText" rows="2" placeholder="Write the intervention in your own words">${esc(ivOf(team))}</textarea>
-      <span class="muted small">This team’s intervention. Vulnerability below is rated against it.</span></div>
+    <div class="ctl" style="max-width:760px;margin-bottom:16px"><label for="ivText">Leverage point (from your AcciMap)</label>
+      <textarea id="ivText" rows="2" placeholder="Where you will intervene, and what would change there">${esc(ivOf(team))}</textarea>
+      <span class="muted small">This team’s leverage point. Vulnerability below is rated against a change here.</span></div>
     <p class="muted small" style="margin:0 0 10px">Nonhumans in this team’s ${esc(a.name)} map, listed by centrality. One rating each.</p>
     <div class="ratelist">${cards || `<div class="empty">No nonhumans in this map yet.</div>`}</div></div>`;
 }
@@ -809,7 +809,7 @@ function renderMatrix(target = $("#view")) {
   });
   target.innerHTML = `<div class="mgrid"><div class="card">
       <div class="controls"><div class="ctl"><span class="lab">Assemblage</span>${asmSeg()}</div></div>
-      <div class="ctl" style="margin-bottom:14px"><span class="lab">Intervention</span><div class="ivshow">${ivOf(team) ? esc(ivOf(team)) : `<span class="muted">Not written yet. Write it in tab 4.</span>`}</div></div>
+      <div class="ctl" style="margin-bottom:14px"><span class="lab">Leverage point</span><div class="ivshow">${ivOf(team) ? esc(ivOf(team)) : `<span class="muted">Not written yet. Write it in tab 4.</span>`}</div></div>
       ${all.length ? `<div class="controls">
         <div class="ctl"><label for="topN">Nonhumans shown (by centrality)</label><div class="vol"><input id="topN" type="range" min="1" max="${all.length}" value="${k}"><b id="topNval">${vis.length} of ${all.length}${vis.length > k ? " (tie)" : ""}</b></div></div>
         <div class="ctl"><label for="splitSel">Centrality split</label><select id="splitSel"><option value="median" ${split === "median" ? "selected" : ""}>Median of shown</option><option value="0.5" ${split === "0.5" ? "selected" : ""}>0.5</option></select></div></div>
