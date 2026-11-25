@@ -2,405 +2,1089 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>More-than-Human Situating</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
 <style>
 :root {
-  --bg: #F5F4F0; --panel: #FFFFFF; --ink: #1F1F1C; --muted: #6B6A63; --line: #DCDAD2; --soft: #EEECE6;
-  --human: #C8571E; --nonhuman: #1E8556; --accent: #2F5FD0; --mech: #7A4FB5; --note: #FFF4D6; --note-line: #E8D49A; --q: #F8F7F3;
-  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
-  color-scheme: light;
+  --bg: #F6F5F1;
+  --panel: #FFFFFF;
+  --ink: #1F1F1C;
+  --muted: #66645D;
+  --line: #D6D3CA;
+  --soft: #EEECE6;
+  --accent: #2F5FD0;
+  --accent-soft: #E6ECFA;
+  --danger: #B23A2E;
+  --font: system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
 }
-@media (prefers-color-scheme: dark) { :root {
-  --bg: #181816; --panel: #22221F; --ink: #ECEAE3; --muted: #A3A198; --line: #3A3934; --soft: #2C2B27;
-  --human: #F08A55; --nonhuman: #4CC48C; --accent: #7EA2F5; --mech: #B794E6; --note: #3A3320; --note-line: #6B5A2A; --q: #262622; color-scheme: dark } }
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 14px; }
-button, select, input, textarea { font: inherit; color: inherit; }
-.wrap { padding: 0 max(16px, env(safe-area-inset-right, 0px)) 40px max(16px, env(safe-area-inset-left, 0px)); max-width: 1360px; margin: 0 auto; }
-header { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 20px; padding-block: 14px; border-bottom: 1px solid var(--line); margin-bottom: 16px; }
-header h1 { font-size: 16px; margin: 0; }
-header .sub { color: var(--muted); }
-nav { display: flex; flex-wrap: wrap; gap: 10px; margin-left: auto; align-items: flex-end; }
-.stage { display: flex; flex-direction: column; gap: 4px; }
-.stage .sl { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding-left: 2px; }
-.stage .btns { display: flex; gap: 4px; flex-wrap: wrap; }
-nav button { padding: 8px 14px; border: 1px solid var(--line); background: var(--panel); border-radius: 6px; cursor: pointer; color: var(--muted); }
-nav button.old { opacity: .55; cursor: default; }
-nav button[aria-current="page"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
-button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.notice { background: var(--note); border: 1px solid var(--note-line); border-radius: 6px; padding: 10px 14px; margin-bottom: 16px; line-height: 1.5; }
-.card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; min-width: 0; margin-bottom: 16px; }
-h2 { font-size: 15px; margin: 0 0 4px; }
+[hidden] { display: none !important; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 14px; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+header { position: sticky; top: 0; z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line); }
+.bar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; padding: 12px 24px; max-width: 1400px; margin: 0 auto; }
+.brand { font-weight: 700; font-size: 16px; margin-right: auto; }
+.brand small { font-weight: 400; color: var(--muted); margin-left: 8px; }
+nav { display: flex; gap: 4px; flex-wrap: wrap; }
+nav button { padding: 8px 14px; border: 1px solid var(--line); background: var(--panel); border-radius: 6px; }
+nav button[aria-current="page"] { background: var(--ink); color: #FFF; border-color: var(--ink); }
+.teampick { display: flex; align-items: center; gap: 8px; }
+select, input[type="text"] { padding: 8px 10px; border: 1px solid #B9B6AC; border-radius: 6px; background: #FFF; }
+input[type="text"]:disabled { background: var(--soft); color: var(--muted); }
+
+main { max-width: 1400px; margin: 0 auto; padding: 20px 24px 48px; }
+.banner { margin-bottom: 16px; padding: 10px 14px; border-radius: 6px; background: #FFF4D6; border: 1px solid #E6CF85; }
+.banner.err { background: #FBE7E4; border-color: #E2A59D; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 18px; }
+h2 { font-size: 16px; margin: 0 0 12px; }
+h3 { font-size: 13px; margin: 0; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
 .muted { color: var(--muted); }
 .small { font-size: 12px; }
-.code { font-family: var(--mono); font-size: 12px; color: var(--muted); white-space: nowrap; }
-.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-.mgrid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 16px; align-items: start; }
-@media (max-width: 980px) { .grid2, .mgrid { grid-template-columns: minmax(0, 1fr); } }
-.controls { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: end; margin-bottom: 14px; }
-.ctl { display: flex; flex-direction: column; gap: 4px; }
-.ctl label, .lab { font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: .02em; }
-select, input[type="text"], textarea { padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
-textarea { width: 100%; resize: vertical; min-height: 34px; }
-.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
-.seg button { padding: 7px 12px; border: 0; background: var(--panel); cursor: pointer; }
-.seg button + button { border-left: 1px solid var(--line); }
-.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
-.btn { padding: 7px 14px; border: 1px solid var(--ink); background: var(--panel); border-radius: 6px; cursor: pointer; }
+.btn { padding: 9px 14px; border: 1px solid var(--ink); background: var(--panel); border-radius: 6px; }
+.btn.primary { background: var(--ink); color: #FFF; }
+.btn.ghost { border-color: var(--line); }
+.btn.danger { border-color: var(--danger); color: var(--danger); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.linkbtn { border: 0; background: none; padding: 2px 4px; color: var(--accent); text-decoration: underline; }
+.linkbtn.danger { color: var(--danger); }
+
+.grid2 { display: grid; grid-template-columns: minmax(320px, 420px) minmax(0, 1fr); gap: 20px; align-items: start; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; align-items: start; }
+@media (max-width: 900px) { .grid2, .grid3 { grid-template-columns: minmax(0, 1fr); } }
+.countgrid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; align-items: start; }
+@media (max-width: 1000px) { .countgrid { grid-template-columns: minmax(0, 1fr); } }
+
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field > .label { font-weight: 600; }
+.opts { display: flex; flex-wrap: wrap; gap: 6px 16px; }
+.opts label { display: flex; align-items: center; gap: 6px; }
+.place { border: 1px solid var(--line); background: var(--soft); border-radius: 6px; padding: 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
+.place .row { display: flex; gap: 8px; }
+.place .row > select { width: 160px; flex: none; }
+.place .row > input { flex: 1; min-width: 0; }
+.formbtns { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 6px; }
+
+.tablewrap { overflow-x: auto; }
+.eltable .actm { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; }
 table { width: 100%; border-collapse: collapse; }
-th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
 th { font-size: 12px; color: var(--muted); border-bottom: 2px solid var(--ink); white-space: nowrap; }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
-.tw { overflow-x: auto; }
-.pill { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .04em; padding: 2px 7px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
-.pA { border-color: var(--nonhuman); color: var(--nonhuman); }
-.pB { border-color: var(--accent); color: var(--accent); }
-.pC { border-color: var(--mech); color: var(--mech); }
-.pE { border-color: var(--human); color: var(--human); }
-.pD { border-style: dashed; }
-.cell { display: block; height: 22px; border-radius: 3px; background: var(--q); border: 1px solid var(--line); }
-.cell.on { background: var(--muted); border-color: var(--muted); }
-.cell.self { background: transparent; border: 1px dashed var(--line); }
-.cell.new { background: transparent; border: 2px solid var(--muted); }
-.vh { writing-mode: vertical-rl; transform: rotate(180deg); height: 132px; font-size: 11px; color: var(--muted); white-space: nowrap; font-weight: 400; }
-.rate { border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; background: var(--panel); margin-bottom: 10px; }
+tr.group td { background: var(--soft); font-weight: 600; font-size: 12px; letter-spacing: .03em; color: var(--muted); }
+tr.cont td { border-top: 0; }
+td.code { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.bar-cell span { display: block; height: 10px; background: var(--ink); border-radius: 2px; }
+
+.maps { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
+.mapcard { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.mapcard .head { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.mapcard svg { display: block; width: 100%; height: auto; touch-action: none; user-select: none; }
+.node { cursor: grab; }
+.rlab { cursor: pointer; }
+.rlab:hover line:last-of-type { stroke: #2F5FD0; }
+.node:active { cursor: grabbing; }
+.outside { margin-top: 14px; padding: 10px 14px; border: 1px dashed var(--line); border-radius: 8px; background: var(--soft); display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); color: var(--muted); }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 12px; color: var(--muted); font-size: 12px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.maplayout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; align-items: start; }
+@media (max-width: 1000px) { .maplayout { grid-template-columns: minmax(0, 1fr); } }
+.side { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 80px; }
+.sel { display: flex; flex-direction: column; gap: 2px; margin-bottom: 10px; }
+.sel b { font-weight: 600; }
+.rellist { display: flex; flex-direction: column; }
+.rel { display: flex; gap: 8px; align-items: baseline; padding: 7px 0; border-bottom: 1px solid var(--line); }
+.rel .n { width: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.rel .t { flex: 1; min-width: 0; }
+
+.maptools { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 20px; margin-bottom: 12px; }
+.hint { color: var(--muted); }
+.hint.on { color: var(--accent); font-weight: 600; }
+.switch { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; white-space: nowrap; }
+.switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.switch .track { width: 38px; height: 22px; border-radius: 11px; background: #C9C6BD; position: relative; transition: background .15s; flex: none; }
+.switch .track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #FFF; transition: transform .15s; }
+.switch input:checked + .track { background: var(--accent); }
+.switch input:checked + .track::after { transform: translateX(16px); }
+.switch input:focus-visible + .track { outline: 2px solid var(--accent); outline-offset: 2px; }
+.overlay { position: fixed; inset: 0; z-index: 20; background: rgba(31,31,28,.35); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.pop { background: var(--panel); border-radius: 10px; padding: 20px; width: min(420px, 100%); box-shadow: 0 10px 40px rgba(0,0,0,.2); }
+.pair { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-bottom: 14px; padding: 10px 12px; background: var(--soft); border-radius: 6px; }
+@media (prefers-reduced-motion: reduce) { .switch .track, .switch .track::after { transition: none; } }
+.kv { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; }
+.kv b { font-variant-numeric: tabular-nums; text-align: right; }
+.listed { display: flex; flex-direction: column; gap: 8px; }
+.listed .item { display: flex; gap: 8px; align-items: center; }
+.listed .item input { flex: 1; min-width: 0; }
+.tag { display: inline-block; padding: 1px 6px; border: 1px solid #B9B6AC; border-radius: 4px; font-size: 12px; font-weight: 700; }
+.confirm { display: inline-flex; gap: 6px; align-items: center; }
+nav { align-items: flex-end; gap: 10px; }
+@media (max-width: 700px) { header { position: static; } .bar { padding: 12px 16px; } main { padding: 16px 16px 40px; } }
+.stage { display: flex; flex-direction: column; gap: 3px; }
+.stage .sl { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding-left: 2px; }
+.stage .btns { display: flex; flex-wrap: wrap; gap: 4px; }
+.cmaps { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 20px; }
+.cmaps svg { display: block; width: 100%; height: auto; }
+.seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.seg button { padding: 7px 12px; border: 0; background: var(--panel); }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: #FFF; }
+.controls { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: flex-end; margin-bottom: 14px; }
+.ctl { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.ctl > .lab, .ctl > label { font-size: 12px; font-weight: 600; color: var(--muted); }
+textarea { font: inherit; color: inherit; padding: 8px 10px; border: 1px solid #B9B6AC; border-radius: 6px; background: #FFF; width: 100%; resize: vertical; }
+.ivshow { padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--soft); line-height: 1.45; }
+.ratelist { display: flex; flex-direction: column; gap: 10px; }
+.rate { border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
 .rate.todo { border-style: dashed; }
 .rate .top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
-.rate .top .name { font-weight: 600; }
-.rate .top .c { margin-left: auto; font-variant-numeric: tabular-nums; color: var(--muted); font-size: 12px; }
-.rate .row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 170px); gap: 8px; }
-@media (max-width: 520px) { .rate .row { grid-template-columns: minmax(0, 1fr); } }
-.chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border: 1px dashed var(--line); border-radius: 999px; font-size: 12px; margin: 3px 4px 0 0; }
+.rate .top b { font-weight: 600; }
+.rate .top .c { margin-left: auto; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.rate .row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 150px); gap: 8px; }
+@media (max-width: 700px) { .rate .row { grid-template-columns: minmax(0, 1fr); } }
+.vol { display: flex; align-items: center; gap: 10px; }
+.vol input { width: 200px; max-width: 50vw; accent-color: var(--accent); }
+.vol b { font-variant-numeric: tabular-nums; }
+.mgrid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 1000px) { .mgrid { grid-template-columns: minmax(0, 1fr); } }
+.plot svg { display: block; width: 100%; height: auto; }
+.pill { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 7px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.pill.crit { border-color: #C8571E; color: #C8571E; }
+.pill.struct { border-color: var(--accent); color: var(--accent); }
+.pill.vul { border-color: #1E8556; color: #1E8556; }
+.unrated { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.pill.pA { border-color: #1E8556; color: #1E8556; }
+.pill.pB { border-color: var(--accent); color: var(--accent); }
+.pill.pC { border-color: #7A4FB5; color: #7A4FB5; }
+.pill.pE { border-color: #C8571E; color: #C8571E; }
+.pill.pD { border-style: dashed; }
+.pill.pQ { border-style: dotted; }
+.cell { display: block; height: 22px; border-radius: 3px; background: #F8F7F3; border: 1px solid var(--line); }
+.cell.on { background: var(--muted); border-color: var(--muted); }
+.cell.disp { background: repeating-linear-gradient(45deg, var(--muted) 0 3px, #F8F7F3 3px 6px); border-color: var(--muted); }
+.cell.self { background: transparent; border: 1px dashed var(--line); }
+.vh { writing-mode: vertical-rl; transform: rotate(180deg); height: 132px; font-size: 11px; color: var(--muted); white-space: nowrap; font-weight: 400; overflow: hidden; text-overflow: ellipsis; }
+.rec { width: auto; }
+.rec th, .rec td { padding: 3px; }
 .ck { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border: 1px solid var(--line); border-radius: 999px; font-size: 12px; margin: 3px 4px 0 0; cursor: pointer; }
 .ck input { margin: 0; }
-.warn { color: var(--human); font-size: 12px; }
-.svgbox svg { display: block; width: 100%; height: auto; min-width: 320px; }
-svg text { font-family: var(--sans); }
-.anno { margin-top: 8px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
-@media (max-width: 980px) { .anno { grid-template-columns: minmax(0, 1fr); } }
-.anno .card h3 { font-size: 13px; margin: 0 0 6px; }
-.anno .card li { line-height: 1.55; color: var(--muted); }
-.anno .card ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+.warn { color: #C8571E; font-size: 12px; }
+.ftable td { vertical-align: top; }
+.ftable select { min-width: 140px; }
+.grid2b { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start; margin-top: 20px; }
+@media (max-width: 900px) { .grid2b { grid-template-columns: minmax(0, 1fr); } }
+.empty { padding: 24px; text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: 8px; }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1>More-than-Human Situating</h1><span class="sub">· AI data centre cooling</span>
-    <nav aria-label="Tabs" id="nav">
-      <div class="stage"><span class="sl">1 Revealing</span><div class="btns">
-        <button type="button" class="old" disabled>1 Elements</button>
-        <button type="button" class="old" disabled>2 Map</button></div></div>
-      <div class="stage"><span class="sl">2 Filtering</span><div class="btns">
-        <button type="button" data-tab="filter">3 Filter</button></div></div>
-      <div class="stage"><span class="sl">3 Situating</span><div class="btns">
-        <button type="button" data-tab="record">4 Record</button>
-        <button type="button" data-tab="vul">5 Vulnerability</button>
-        <button type="button" data-tab="matrix">6 Matrix</button></div></div>
-      <div class="stage"><span class="sl">4 Routes</span><div class="btns">
-        <button type="button" data-tab="routes">7 Routes</button></div></div>
-    </nav>
-  </header>
-
-  <div class="notice">Example data. Team 1 uses the earlier example; Teams 2 and 3 are invented. Tabs 1–2 stay as they are now; splits of an element with two relations are made there. Tabs 5–7 open only with the facilitator key.</div>
-
-  <div class="controls">
-    <div class="ctl"><label for="team">Team</label><select id="team"></select></div>
-    <div class="ctl"><span class="lab">Assemblage</span><div class="seg" id="seg" role="group" aria-label="Assemblage"></div></div>
-    <div class="ctl"><span class="lab">Filter result</span><div id="sum" style="display:flex;gap:6px;flex-wrap:wrap"></div></div>
-    <div class="ctl" style="margin-left:auto"><span class="lab">Judgement record</span><div style="display:flex;gap:6px"><button type="button" class="btn" id="exp">Export CSV</button><button type="button" class="btn" id="reset">Reset</button></div></div>
+<header>
+  <div class="bar">
+    <div class="brand">More-than-Human Situating<small id="situationName"></small></div>
+    <nav id="tabs" aria-label="Steps"></nav>
+    <div class="teampick"><label for="teamSel">Team</label><select id="teamSel"></select></div>
   </div>
+</header>
+<main>
+  <div id="banner"></div>
+  <section id="view"></section>
+</main>
 
-  <main id="view"></main>
-
-  <div class="anno">
-    <div class="card"><h3>2 · Filter</h3><ul>
-      <li>E is asked first: humans stay as columns only.</li>
-      <li>A and B are asked independently.</li>
-      <li>C only if neither. Everything else is D.</li>
-      <li>Judged by relation to this design, not by kind.</li></ul></div>
-    <div class="card"><h3>3 · Record</h3><ul>
-      <li>Rows: A only.</li>
-      <li>Columns: every element on the map.</li>
-      <li>Degree reported with its sources.</li>
-      <li>Low degree from few sources → further inquiry.</li></ul></div>
-    <div class="card"><h3>3 · Vulnerability and matrix</h3><ul>
-      <li>Rated per A × assemblage × intervention.</li>
-      <li>Vulnerability → priority.</li>
-      <li>Degree → scope of participation.</li>
-      <li>No one drops off the matrix.</li></ul></div>
-    <div class="card"><h3>4 · Routes</h3><ul>
-      <li>Conditions of makeability decide how, not whether.</li>
-      <li>B: iteration log.</li>
-      <li>C: what it shows and leaves out.</li>
-      <li>Spokespersons confirmed, not assumed.</li></ul></div>
-  </div>
-</div>
-
-<script>
-(() => {
-const RESULTS = ["E", "A", "B", "C", "D resource", "D pressure", "D condition"];
-const LEVELS = ["Low", "Medium-Low", "Medium", "High"];
-const PROCS = ["Producing its components", "Recovering its state"];
-const CONDS = ["co-presence", "observable response", "temporal rhythm", "datafiability", "care dependence", "institutional legibility"];
-const KEY = "mth-situating-v2";
-
-const el = (c, t, n, r, why = "", split = "") => ({ c, t, n, r, why, split });
-const SEED = {
-  iv: "Build a water-recycling cooling plant so the data centre draws less from the local supply.",
-  teams: [
-    { name: "Team 1",
-      s: { els: [el("H2","H","Data centre operator","E"), el("H4","H","County council","E"),
-          el("N1a","N","Cooling water","D resource","Used for cooling.","N1 Water"), el("N1b","N","River ecosystem","A","Source of intake. Maintains itself; intake unsettles it.","N1 Water"),
-          el("N4","N","GPU servers","D pressure","Produce the heat load the plant removes."), el("N5","N","Power grid","D resource","Used by the plant."),
-          el("N6","N","Cooling system","B","What the intervention redesigns."), el("N7","N","Land parcel","D condition","Site condition. Soil ecosystem not split yet."),
-          el("N8","N","Tax incentive","D condition","Imposed by policy.")],
-        edges: [["H2","N4"],["H2","N6"],["H2","N7"],["H4","N8"],["H4","N7"],["N4","N5"],["N4","N6"],["N6","N1a"],["N5","N7"],["H2","N8"],["N1a","N1b",1]],
-        src: { N1b: 0 }, vul: { N1b: { p: 1, lv: 3, why: "Cooling draws on the same supply; recycling changes volume and temperature." } },
-        mk: { N1b: ["datafiability", "institutional legibility"] } },
-      o: { els: [el("H1","H","Residents' committee","E"), el("H3","H","Future generations","E","Not present. Handled through communities and the river."), el("H5","H","Environmental group","E"),
-          el("N1","N","River ecosystem","A","Relation here is discharge, not cooling. Not split."), el("N2","N","Transmission tower","D pressure","Acts on farmland and residents."),
-          el("N9","N","Noise","D pressure","Acts on residents. Does not maintain itself."), el("N10","N","Farmland ecosystem","A","Crops and soil. Farmed, still self-maintaining."),
-          el("N11","N","Groundwater well","D resource","Used.")],
-        edges: [["H1","N2"],["H1","N9"],["H5","N1"],["H5","N11"],["N2","N10"],["N1","N11"],["N1","N10"],["H1","N11"],["N2","N9"]],
-        src: { N1: 3, N10: 1 }, vul: { N1: { p: 1, lv: 3, why: "Discharge returns to the river system." } },
-        mk: { N1: ["co-presence", "observable response", "institutional legibility"], N10: ["co-presence", "temporal rhythm", "care dependence"] } } },
-    { name: "Team 2",
-      s: { els: [el("H1","H","Plant engineers","E"), el("H2","H","Local business association","E"),
-          el("N1","N","Cooling water","D resource","Used for cooling.","Water"), el("N2","N","River ecosystem","A","Source of intake.","Water"),
-          el("N3","N","Waste heat","D pressure","Not worked on by this intervention."), el("N4","N","Heat exchanger","B","Redesigned with the plant."),
-          el("N5","N","Greenhouse crops","A","Grown with waste heat. Self-maintaining."), el("N6","N","Electricity","D resource","Used."),
-          el("N7","N","Water-quality sensor","C","Makes the river's state present.")],
-        edges: [["H1","N4"],["H1","N6"],["H2","N5"],["N1","N4"],["N1","N2"],["N4","N3"],["N3","N5"],["N7","N2"],["N7","H1"],["N6","N4"],["N3","N2"]],
-        src: { N2: 3, N5: 2 }, vul: { N2: { p: 1, lv: 3, why: "Intake volume and return temperature change." }, N5: { p: 0, lv: 1, why: "Heat supply to greenhouses barely changes." } },
-        mk: { N2: ["datafiability", "observable response"], N5: ["care dependence", "temporal rhythm", "co-presence"] } },
-      o: { els: [el("H1","H","Fishers","E"), el("H2","H","Riverside residents","E"), el("H3","H","Environmental NGO","E"),
-          el("N1","N","River ecosystem","A"), el("N2","N","Sweetfish","A","Spawns in this reach."), el("N3","N","Riparian trees","A"),
-          el("N4","N","Discharge heat","D pressure","Acts on the river."), el("N5","N","Noise","D pressure","Acts on residents."),
-          el("N6","N","Migratory birds","A","Feed along this reach."), el("N7","N","Water-use permit","D condition","Imposed by regulation.")],
-        edges: [["H1","N2"],["H1","N1"],["H2","N5"],["H2","N3"],["H3","N1"],["H3","N6"],["N1","N2"],["N1","N3"],["N1","N4"],["N2","N4"],["N3","N6"],["N6","N1"],["N7","N1"],["H3","N7"]],
-        src: { N1: 5, N2: 3, N3: 2, N6: 1 },
-        vul: { N1: { p: 1, lv: 3, why: "Discharge temperature shifts in summer." }, N2: { p: 0, lv: 3, why: "Spawning depends on water temperature." },
-               N3: { p: 1, lv: 1, why: "Bank moisture changes little." }, N6: { p: 0, lv: 2, why: "Feeding follows fish numbers." } },
-        mk: { N1: ["co-presence", "datafiability"], N2: ["temporal rhythm", "observable response"], N3: ["co-presence", "temporal rhythm"], N6: ["temporal rhythm", "observable response"] } } },
-    { name: "Team 3",
-      s: { els: [el("H1","H","Data centre operator","E"), el("H2","H","AI service users","E"),
-          el("N1","N","AI model workload","D pressure","Drives the heat load. Does not maintain itself."), el("N2","N","GPU servers","D pressure","Produce heat."),
-          el("N3","N","Cooling plant","B","What the intervention redesigns."), el("N4","N","Recycled water loop","D resource","Used."),
-          el("N5","N","Power grid","D resource","Used."), el("N6","N","Energy dashboard","C","Makes the plant's water draw visible."),
-          el("N7","N","AI Basic Act","D condition","Imposed by law.")],
-        edges: [["H1","N3"],["H1","N6"],["H2","N1"],["N1","N2"],["N2","N3"],["N3","N4"],["N3","N5"],["N2","N5"],["N6","N3"],["N6","N4"],["N7","H1"]],
-        src: {}, vul: {}, mk: {} },
-      o: { els: [el("H1","H","Farmers","E"), el("H2","H","Residents' committee","E"),
-          el("N1a","N","Soil ecosystem","A","Split: the living soil.","N1 Farmland"), el("N1b","N","Land parcel","D condition","Split: the plot as a site.","N1 Farmland"),
-          el("N2","N","Groundwater","D resource","Used."), el("N3","N","Stream ecosystem","A"),
-          el("N4","N","Transmission tower","D pressure","Acts on the plot."), el("N5","N","Noise","D pressure","Acts on residents."),
-          el("N6","N","Rice crop","A","Farmed, still self-maintaining.")],
-        edges: [["H1","N6"],["H1","N2"],["H2","N5"],["H2","N4"],["N1a","N6"],["N1a","N2"],["N3","N2"],["N3","N1a"],["N4","N1b"],["N6","N2"],["N1a","N1b",1]],
-        src: { N1a: 1, N3: 1, N6: 2 },
-        vul: { N3: { p: 1, lv: 1, why: "Less groundwater draw; little change to the stream." }, N1a: { p: 1, lv: 0, why: "Not touched by the plant." } },
-        mk: { N1a: ["care dependence"], N3: ["co-presence", "observable response"], N6: ["care dependence", "temporal rhythm", "co-presence"] } } }
-  ]
+<script type="module">
+/* ---------- configuration ---------- */
+const firebaseConfig = {
+  apiKey: "AIzaSyCadpcu_ERQFBJVsxObSfXTA7bQ7m_evaM",
+  authDomain: "mthd-situational-mapping.firebaseapp.com",
+  projectId: "mthd-situational-mapping",
+  storageBucket: "mthd-situational-mapping.firebasestorage.app",
+  messagingSenderId: "281019003256",
+  appId: "1:281019003256:web:f39b2e2bc3ecce628e588d"
 };
+const FIREBASE_VERSION = "10.12.2";
 
-let S;
-try { S = JSON.parse(localStorage.getItem(KEY)) || null; } catch (e) { S = null; }
-if (!S || !S.teams) S = JSON.parse(JSON.stringify(SEED));
-const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+const params = new URLSearchParams(location.search);
+const DEMO = params.has("demo");
+// Facilitator key is checked by hash so the key itself is not in the source
+const cyrb53 = (str, seed = 0) => { let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed; for (let i = 0; i < str.length; i++) { const c = str.charCodeAt(i); h1 = Math.imul(h1 ^ c, 2654435761); h2 = Math.imul(h2 ^ c, 1597334677); } h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507); h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909); h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507); h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909); return 4294967296 * (2097151 & h2) + (h1 >>> 0); };
+const ADMIN_HASH = 1859433195761764;
+const ADMIN = cyrb53(params.get("key") || "") === ADMIN_HASH;
+const WID = (params.get("w") || "main").replace(/[^A-Za-z0-9_-]/g, "") || "main";
 
-let tab = "filter", ti = 0, asm = "s";
-const TABS = ["filter", "record", "vul", "matrix", "routes"];
-const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[m]));
-const icon = (t) => t === "H"
-  ? `<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="var(--human)" stroke-width="2"/></svg>`
-  : `<svg width="15" height="13" viewBox="0 0 18 16" aria-hidden="true"><path d="M9 1.5 L16.5 14.5 L1.5 14.5 Z" fill="none" stroke="var(--nonhuman)" stroke-width="2"/></svg>`;
-const pc = (r) => "pill p" + r[0];
-const stop = (r) => r === "E" ? "E yes" : r === "A" ? "E no · A yes" : r === "B" ? "E no · A no · B yes" : r === "C" ? "E no · A, B no · C yes" : "E no · A, B, C no";
-const cur = () => S.teams[ti][asm];
-const asmLabel = (k) => k === "s" ? "A1 Supporting" : "A2 Opposing";
-const As = (a) => a.els.filter((e) => e.r === "A");
-const edge = (a, x, y) => a.edges.find((e) => (e[0] === x && e[1] === y) || (e[0] === y && e[1] === x));
-const deg = (a, c) => { let n = 0; a.els.forEach((e) => { if (e.c !== c && edge(a, c, e.c)) n++; }); return [n, a.els.length - 1]; };
-const median = (a) => { const v = As(a).map((e) => { const d = deg(a, e.c); return d[0] / d[1]; }).sort((p, q) => p - q), m = v.length >> 1;
-  return v.length ? (v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2) : 0; };
-const K = (code) => `${ti}|${asm}|${code}`;
+const DEFAULT_WORKSHOP = {
+  situation: "AI data centre siting",
+  teams: [{ id: "t1", name: "Team 1" }, { id: "t2", name: "Team 2" }, { id: "t3", name: "Team 3" }],
+  assemblages: [{ id: "a1", n: 1, name: "Supporting" }, { id: "a2", n: 2, name: "Opposing" }],
+  nextAssemblage: 3,
+  nextTeam: 4,
+  sources: ["Interview", "Field observation", "News article", "Policy document", "Team knowledge"]
+};
+const NONE = "a0";
+const VOICES = [
+  { v: "speaks", label: "Speaks for itself" },
+  { v: "spoken", label: "Spoken for by…" },
+  { v: "silent", label: "No one speaks" }
+];
 
-function vFilter() {
-  const a = cur();
-  return `<div class="card"><h2>Filter · ${esc(S.teams[ti].name)} · ${asmLabel(asm)}</h2>
-  <p class="muted small" style="margin:0 0 12px">E: is it human? A: does it produce and maintain itself? B: is it what the design works on directly? A and B are asked independently. C, if neither: does it make other entities present? Else D: a resource used, a pressure exerted or a condition imposed.</p>
-  <div class="tw"><table><thead><tr><th>No.</th><th></th><th>Element</th><th>Result</th><th>Stopped at</th><th style="min-width:240px">Reason</th></tr></thead><tbody>
-  ${a.els.map((e) => `<tr><td class="code">${e.c}</td><td>${icon(e.t)}</td><td>${esc(e.n)}${e.split ? `<div class="muted small">split from ${esc(e.split)}</div>` : ""}</td>
-    <td><select data-k="${K(e.c)}" data-f="r" aria-label="Result, ${esc(e.n)}">${RESULTS.map((r) => `<option ${r === e.r ? "selected" : ""}>${r}</option>`).join("")}</select></td>
-    <td class="code">${stop(e.r)}</td>
-    <td><textarea data-k="${K(e.c)}" data-f="why" rows="1" placeholder="${e.r === "E" ? "Human stakeholder. Stays as a column." : "Reason"}" aria-label="Reason, ${esc(e.n)}">${esc(e.why)}</textarea></td></tr>`).join("")}
-  </tbody></table></div></div>`;
+/* ---------- small helpers ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const ls = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch {} }
+};
+const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+function showBanner(msg, err) { $("#banner").innerHTML = msg ? `<div class="banner${err ? " err" : ""}">${msg}</div>` : ""; }
+
+/* ---------- data layer ---------- */
+let store;
+function makeDemoStore() {
+  const s = { workshop: structuredClone(DEFAULT_WORKSHOP), elements: {}, relations: {} };
+  const listeners = [];
+  const emit = () => listeners.forEach((f) => f(snapshot()));
+  const snapshot = () => ({ workshop: s.workshop, elements: Object.entries(s.elements).map(([id, d]) => ({ id, ...d })), relations: Object.entries(s.relations).map(([id, d]) => ({ id, ...d })) });
+  const P = (o) => Promise.resolve(o);
+  // example data for the demo only
+  const ex = [
+    ["H", 1, "Residents’ committee", { a2: { voice: "speaks", source: "Interview", where: "Interview 1" } }],
+    ["H", 2, "Data centre operator", { a1: { voice: "speaks", source: "News article", where: "Local news, 3 Oct" } }],
+    ["H", 3, "Future generations", { a2: { voice: "silent", source: "Team knowledge" } }],
+    ["N", 1, "Water", { a1: { voice: "silent", source: "Policy document", where: "Siting plan p.12" }, a2: { voice: "spoken", spokenBy: "Environmental group", source: "Interview", where: "Interview 3" } }],
+    ["N", 2, "Transmission tower", { a2: { voice: "spoken", spokenBy: "Residents", source: "Field observation" } }],
+    ["N", 3, "River ecosystem", { a0: { voice: "silent", source: "Team knowledge" } }]
+  ];
+  const ids = {};
+  ex.forEach(([type, no, name, placements], i) => { const id = "e" + i; ids[type + no] = id; s.elements[id] = { team: "t1", type, no, name, placements, createdAt: i }; });
+  s.relations.r1 = { team: "t1", assemblage: "a2", from: ids.H1, to: ids.N2, verb: "suffers noise from", disputed: false, no: 1, createdAt: 1 };
+  s.relations.r2 = { team: "t1", assemblage: "a2", from: ids.N2, to: ids.N1, verb: "runs over", disputed: false, no: 2, createdAt: 2 };
+  s.relations.r3 = { team: "t1", assemblage: "a1", from: ids.H2, to: ids.N1, verb: "cools servers with", disputed: false, no: 3, createdAt: 3 };
+  s.workshop.interventions = { t1: "Build a water-recycling cooling plant so the data centre draws less from the local supply." };
+  s.elements[ids.N1].placements.a2.vul = { dim: "Biological/ecological flourishing", lv: 3, why: "Discharge returns to the river system." };
+  s.elements[ids.N2].placements.a2.vul = { dim: "Material durability and care", lv: 0, why: "" };
+  Object.assign(s.elements[ids.N1].placements.a1, { fr: "D resource", fwhy: "Used for cooling." });
+  Object.assign(s.elements[ids.N1].placements.a2, { fr: "A", fwhy: "The river system maintains itself; discharge unsettles it.", src: 1, mk: ["co-presence", "institutional legibility"] });
+  Object.assign(s.elements[ids.N2].placements.a2, { fr: "D pressure", fwhy: "Acts on residents." });
+  return {
+    subscribe(cb) { listeners.push(cb); setTimeout(() => cb(snapshot()), 0); },
+    saveWorkshop(w) { s.workshop = structuredClone(w); emit(); return P(); },
+    addElement(d) { const id = uid(); s.elements[id] = { ...d, createdAt: Date.now() }; emit(); return P(id); },
+    updateElement(id, d) { s.elements[id] = { ...s.elements[id], ...d }; emit(); return P(); },
+    setPosition(id, aid, x, y) { const p = s.elements[id]?.placements?.[aid]; if (p) { p.x = x; p.y = y; } emit(); return P(); },
+    deleteDocs(elementIds, relationIds) { elementIds.forEach((i) => delete s.elements[i]); relationIds.forEach((i) => delete s.relations[i]); emit(); return P(); },
+    addRelation(d) { s.relations[uid()] = { ...d, createdAt: Date.now() }; emit(); return P(); },
+    updateRelation(id, d) { s.relations[id] = { ...s.relations[id], ...d }; emit(); return P(); },
+    setVul(id, aid, v) { const p = s.elements[id]?.placements?.[aid]; if (p) p.vul = v; emit(); return P(); },
+    setIntervention(tid, v) { s.workshop.interventions = { ...(s.workshop.interventions || {}), [tid]: v }; emit(); return P(); },
+    setPlace(id, aid, f, v) { const p = s.elements[id]?.placements?.[aid]; if (p) p[f] = v; emit(); return P(); }
+  };
 }
 
-function vRecord() {
-  const a = cur(), A = As(a);
-  if (!A.length) return `<div class="card"><h2>Relational record</h2><p class="warn">No stake-holding participant (A) in this map. A valid result, but run the boundary check: what lies outside the theme and is affected by it?</p></div>`;
-  const cols = a.els, m = median(a);
-  let h = `<div class="card"><h2>Relational record · ${esc(S.teams[ti].name)} · ${asmLabel(asm)}</h2>
-  <p class="muted small" style="margin:0 0 12px">Rows: A only. Columns: every element on the map, humans and background included. Cell: a relation evidenced by a source.</p>
-  <div class="tw"><table style="table-layout:fixed;min-width:${170 + cols.length * 38 + 140}px"><thead>
-  <tr><th style="width:170px;border-bottom:0"></th>${cols.map((c) => `<th style="width:38px;border-bottom:0;padding:2px"><div class="vh">${esc(c.n)}</div></th>`).join("")}<th class="num" style="width:70px;border-bottom:0">Degree</th><th class="num" style="width:70px;border-bottom:0">Sources</th></tr>
-  <tr><th></th>${cols.map((c) => `<th style="padding:2px;text-align:center"><span class="${pc(c.r)}" style="padding:1px 5px">${c.r[0]}</span></th>`).join("")}<th></th><th></th></tr></thead><tbody>`;
-  A.forEach((r) => {
-    const d = deg(a, r.c), s = a.src[r.c] ?? 0, low = A.length === 1 || d[0] / d[1] < m;
-    h += `<tr><td>${icon("N")} ${esc(r.n)}</td>${cols.map((c) => {
-      if (c.c === r.c) return `<td style="padding:3px"><span class="cell self"></span></td>`;
-      const e = edge(a, r.c, c.c);
-      return `<td style="padding:3px"><span class="cell ${e ? (e[2] ? "new" : "on") : ""}" title="${esc(r.n)} – ${esc(c.n)}"></span></td>`;
-    }).join("")}<td class="num"><b>${d[0]}/${d[1]}</b></td>
-    <td class="num"><input type="text" inputmode="numeric" data-k="${K(r.c)}" data-f="src" value="${s}" style="width:48px;text-align:right" aria-label="Sources, ${esc(r.n)}"></td></tr>`;
-    if (low && s <= 1) h += `<tr><td colspan="${cols.length + 3}" class="warn">${esc(r.n)}: low degree from ${s} source${s === 1 ? "" : "s"}. Further inquiry before reading it as peripheral.</td></tr>`;
-  });
-  return h + `</tbody></table></div><p class="muted small" style="margin:10px 0 0">Outlined cell: a relation created by a split, no source yet. Median degree of A: ${m.toFixed(2)}.</p></div>`;
+async function makeFirebaseStore() {
+  const base = `https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/`;
+  const { initializeApp } = await import(base + "firebase-app.js");
+  const fs = await import(base + "firebase-firestore.js");
+  const app = initializeApp(firebaseConfig);
+  const db = fs.getFirestore(app);
+  const wRef = fs.doc(db, "workshops", WID);
+  const eCol = fs.collection(db, "workshops", WID, "elements");
+  const rCol = fs.collection(db, "workshops", WID, "relations");
+  const state = { workshop: null, elements: [], relations: [] };
+  let ready = { w: false, e: false, r: false };
+  const onErr = (e) => { console.error(e); showBanner("Could not reach the database. Check the internet connection and the Firestore rules, then reload. (" + esc(e.code || e.message) + ")", true); };
+  return {
+    subscribe(cb) {
+      const fire = () => { if (ready.w && ready.e && ready.r) cb({ ...state }); };
+      fs.onSnapshot(wRef, (snap) => {
+        if (!snap.exists()) { fs.setDoc(wRef, DEFAULT_WORKSHOP).catch(onErr); return; }
+        state.workshop = snap.data(); ready.w = true; fire();
+      }, onErr);
+      fs.onSnapshot(eCol, (snap) => { state.elements = snap.docs.map((d) => ({ id: d.id, ...d.data() })); ready.e = true; fire(); }, onErr);
+      fs.onSnapshot(rCol, (snap) => { state.relations = snap.docs.map((d) => ({ id: d.id, ...d.data() })); ready.r = true; fire(); }, onErr);
+    },
+    saveWorkshop(w) { return fs.setDoc(wRef, w).catch(onErr); },
+    async addElement(d) { const ref = await fs.addDoc(eCol, { ...d, createdAt: fs.serverTimestamp() }).catch(onErr); return ref?.id; },
+    updateElement(id, d) { return fs.updateDoc(fs.doc(eCol, id), d).catch(onErr); },
+    setPosition(id, aid, x, y) { return fs.updateDoc(fs.doc(eCol, id), new fs.FieldPath("placements", aid, "x"), x, new fs.FieldPath("placements", aid, "y"), y).catch(onErr); },
+    deleteDocs(elementIds, relationIds) {
+      const b = fs.writeBatch(db);
+      elementIds.forEach((i) => b.delete(fs.doc(eCol, i)));
+      relationIds.forEach((i) => b.delete(fs.doc(rCol, i)));
+      return b.commit().catch(onErr);
+    },
+    addRelation(d) { return fs.addDoc(rCol, { ...d, createdAt: fs.serverTimestamp() }).catch(onErr); },
+    updateRelation(id, d) { return fs.updateDoc(fs.doc(rCol, id), d).catch(onErr); },
+    setVul(id, aid, v) { return fs.updateDoc(fs.doc(eCol, id), new fs.FieldPath("placements", aid, "vul"), v).catch(onErr); },
+    setIntervention(tid, v) { return fs.updateDoc(wRef, new fs.FieldPath("interventions", tid), v).catch(onErr); },
+    setPlace(id, aid, f, v) { return fs.updateDoc(fs.doc(eCol, id), new fs.FieldPath("placements", aid, f), v).catch(onErr); }
+  };
 }
 
-function vVul() {
-  const a = cur(), A = As(a);
-  const done = A.filter((e) => a.vul[e.c] && a.vul[e.c].lv != null).length;
-  return `<div class="card"><div class="ctl" style="margin-bottom:14px;max-width:760px"><label for="iv">Intervention under development</label>
-    <textarea id="iv" rows="2" placeholder="Write the intervention in your own words">${esc(S.iv)}</textarea>
-    <span class="muted small">Vulnerability below is rated against this intervention.</span></div>
-  <p class="muted small" style="margin:0 0 12px">${done} of ${A.length} rated. Only stake-holding participants (A) are rated: how far does the intervention unsettle the processes by which it maintains itself? Listed by degree.</p>
-  ${A.length ? A.slice().sort((x, y) => deg(a, y.c)[0] - deg(a, x.c)[0]).map((e) => {
-    const v = a.vul[e.c] || {}, d = deg(a, e.c), k = K(e.c);
-    return `<div class="rate ${v.lv != null ? "" : "todo"}"><div class="top">${icon("N")}<span class="code">${e.c}·A${asm === "s" ? 1 : 2}</span><span class="name">${esc(e.n)}</span><span class="c">degree ${d[0]}/${d[1]}</span></div>
-      <div class="row"><select data-k="${k}" data-f="p" aria-label="Process touched, ${esc(e.n)}"><option value="">Process touched…</option>${PROCS.map((p, i) => `<option value="${i}" ${v.p === i ? "selected" : ""}>${p}</option>`).join("")}</select>
-      <select data-k="${k}" data-f="lv" aria-label="Vulnerability, ${esc(e.n)}"><option value="">Vulnerability…</option>${LEVELS.map((l, i) => `<option value="${i}" ${v.lv === i ? "selected" : ""}>${l}</option>`).join("")}</select></div>
-      <textarea data-k="${k}" data-f="vwhy" placeholder="Reason and source" aria-label="Reason, ${esc(e.n)}">${esc(v.why)}</textarea></div>`;
-  }).join("") : `<p class="muted">Nothing to rate. No A in this map.</p>`}</div>`;
-}
+/* ---------- app state ---------- */
+let data = { workshop: null, elements: [], relations: [] };
+let tab = ls.get("sm-tab", "elements");
+if (tab === "setup" && !ADMIN) tab = "elements";
+let team = ls.get("sm-team", "t1");
+let dragging = false;
+let selection = { aid: null, from: null, to: null };
+let relDraft = { verb: "", disputed: false };
+let showLabels = ls.get("sm-labels", "1") === "1";
+let pendingDelete = null; // {kind, id}
 
-function vMatrix() {
-  const a = cur(), A = As(a);
-  if (!A.length) return `<div class="card"><h2>Matrix</h2><p class="muted">Empty. No A in this map.</p></div>`;
-  const m = median(a), W = 600, H = 430, L = 96, T = 18, PW = W - L - 18, PH = H - T - 58;
-  const X = (v) => L + v * PW, Y = (l) => T + PH - (l + 0.5) / 4 * PH;
-  let g = `<rect x="${L}" y="${T}" width="${PW}" height="${PH}" fill="var(--q)" stroke="var(--line)"/>
-    <line x1="${X(m)}" y1="${T}" x2="${X(m)}" y2="${T + PH}" stroke="var(--muted)" stroke-dasharray="5 4"/>
-    <line x1="${L}" y1="${T + PH / 2}" x2="${L + PW}" y2="${T + PH / 2}" stroke="var(--muted)" stroke-dasharray="5 4"/>`;
-  const ql = (x, y, t, an) => `<text x="${x}" y="${y}" text-anchor="${an}" font-size="11" font-weight="600" fill="var(--muted)">${t}</text>`;
-  g += ql(L + 8, T + 16, "PRIORITY · SPECIFIC DECISIONS", "start") + ql(L + PW - 8, T + 16, "PRIORITY · WHOLE PROCESS", "end")
-     + ql(L + 8, T + PH - 8, "LOWER PRIORITY · SPECIFIC DECISIONS", "start") + ql(L + PW - 8, T + PH - 8, "LOWER PRIORITY · WHOLE PROCESS", "end");
-  LEVELS.forEach((l, i) => g += `<text x="${L - 8}" y="${Y(i) + 4}" text-anchor="end" font-size="11" fill="var(--muted)">${l}</text>`);
-  [0, .25, .5, .75, 1].forEach((t) => g += `<text x="${X(t)}" y="${T + PH + 18}" text-anchor="middle" font-size="11" fill="var(--muted)">${t.toFixed(2)}</text>`);
-  g += `<text x="${X(m) + 4}" y="${T + PH - 24}" font-size="10" fill="var(--muted)">${m.toFixed(2)}</text>
-    <text x="${L + PW / 2}" y="${H - 10}" text-anchor="middle" font-size="12" fill="var(--ink)">Degree → scope of participation</text>
-    <text transform="translate(16 ${T + PH / 2}) rotate(-90)" text-anchor="middle" font-size="12" fill="var(--ink)">Vulnerability → priority</text>`;
-  const seen = {}, un = [], rows = [];
-  A.forEach((e) => {
-    const v = a.vul[e.c], d = deg(a, e.c), x = d[0] / d[1];
-    if (!v || v.lv == null) { un.push(e); rows.push(`<tr><td class="code">${e.c}</td><td>${esc(e.n)}</td><td class="num">${d[0]}/${d[1]}</td><td class="muted">not rated</td><td></td></tr>`); return; }
-    const key = x.toFixed(3) + "|" + v.lv, k = seen[key] = (seen[key] || 0) + 1, px = X(x) + (k - 1) * 16, py = Y(v.lv), h = 9;
-    g += `<path d="M${px} ${py - h} L${px + h * 1.1} ${py + h * .8} L${px - h * 1.1} ${py + h * .8} Z" fill="var(--panel)" stroke="var(--nonhuman)" stroke-width="2.5" stroke-linejoin="round"/>
-      <text x="${px > L + PW * 0.68 ? px + 10 : px + 14}" y="${px > L + PW * 0.68 ? py - 14 : py + 4}" text-anchor="${px > L + PW * 0.68 ? "end" : "start"}" font-size="12" font-weight="600" fill="var(--ink)" paint-order="stroke" stroke="var(--q)" stroke-width="4">${e.c} ${esc(e.n)}</text>`;
-    const pri = v.lv >= 2, whole = x >= m;
-    rows.push(`<tr><td class="code">${e.c}</td><td>${esc(e.n)}</td><td class="num">${d[0]}/${d[1]}</td><td>${LEVELS[v.lv]}</td><td><span class="pill ${pri ? "pE" : ""}">${pri ? "Priority" : "Lower priority"} · ${whole ? "whole process" : "specific decisions"}</span></td></tr>`);
-  });
-  return `<div class="mgrid"><div class="card"><h2>Matrix · ${esc(S.teams[ti].name)} · ${asmLabel(asm)}</h2>
-    <div class="ctl" style="margin:6px 0 10px;max-width:560px"><span class="lab">Intervention</span><div class="small" style="padding:7px 10px;border:1px solid var(--line);border-radius:6px;background:var(--q)">${S.iv.trim() ? esc(S.iv) : `<span class="muted">Not written yet. Write it in tab 5.</span>`}</div></div>
-    <p class="muted small" style="margin:0 0 8px">Only A. Split line: median degree of A${A.length === 1 ? "; with one A the split means little" : ""}.</p>
-    <div class="svgbox"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Vulnerability by degree">${g}</svg></div>
-    ${un.length ? `<div style="margin-top:8px"><span class="lab">Not rated yet · rate in tab 5</span><br>${un.map((e) => `<span class="chip">${icon("N")}${e.c} ${esc(e.n)}</span>`).join("")}</div>` : ""}</div>
-    <div class="card"><h2>Stake-holding participants</h2><p class="muted small" style="margin:0 0 10px">x from tab 4, y from tab 5.</p>
-    <div class="tw"><table><thead><tr><th>No.</th><th>Participant</th><th class="num">Degree</th><th>Vulnerability</th><th>Reading</th></tr></thead><tbody>${rows.join("")}</tbody></table></div></div></div>`;
-}
+const W = () => data.workshop || DEFAULT_WORKSHOP;
+const assemblages = () => W().assemblages || [];
+const asmById = (id) => id === NONE ? { id: NONE, n: 0, name: "Not in any assemblage" } : assemblages().find((a) => a.id === id);
+const asmCode = (id) => "A" + (asmById(id)?.n ?? "?");
+const teamElements = () => data.elements.filter((e) => e.team === team).sort((a, b) => (a.type === b.type ? a.no - b.no : a.type === "H" ? -1 : 1));
+const teamRelations = () => data.relations.filter((r) => r.team === team).sort((a, b) => a.no - b.no);
+const elCode = (e) => e.type + e.no;
+const placeCode = (e, aid) => `${elCode(e)}·${asmCode(aid)}`;
+const elById = (id) => data.elements.find((e) => e.id === id);
+const orderedPlacements = (e) => Object.keys(e.placements || {}).sort((a, b) => (asmById(a)?.n ?? 99) - (asmById(b)?.n ?? 99));
 
-function vRoutes() {
-  const a = cur(), A = As(a), B = a.els.filter((e) => e.r === "B"), C = a.els.filter((e) => e.r === "C");
-  const sp = (r) => a.els.filter((e) => e.r === "E" && edge(a, r.c, e.c)).map((e) => e.n);
-  return `<div class="card"><h2>Stake-holding participants (A)</h2>
-    <p class="muted small" style="margin:0 0 12px">Conditions of makeability decide how each takes part, not whether. Humans linked to an A are possible spokespersons, to be confirmed.</p>
-    ${A.length ? `<div class="tw"><table><thead><tr><th>Participant</th><th>Conditions of makeability</th><th>Possible spokespersons</th></tr></thead><tbody>
-    ${A.map((r) => { const on = a.mk[r.c] || [], s = sp(r);
-      return `<tr><td>${icon("N")} ${esc(r.n)}</td><td>${CONDS.map((c) => `<label class="ck"><input type="checkbox" data-k="${K(r.c)}" data-f="mk" value="${c}" ${on.includes(c) ? "checked" : ""}>${c}</label>`).join("")}</td>
-      <td class="small">${s.length ? s.map(esc).join(", ") : `<span class="warn">None on the map. Nobody speaks for it here.</span>`}</td></tr>`; }).join("")}
-    </tbody></table></div>` : `<p class="muted">None.</p>`}</div>
-  <div class="grid2"><div class="card"><h2>Co-shaping participants (B)</h2>
-    ${B.length ? B.map((e) => `<div class="rate todo"><div class="top"><span class="name">${esc(e.n)}</span></div><div class="muted small">Iteration log: operation, breakdown, resistance. Empty until the first iteration.</div></div>`).join("") : `<p class="muted small">None.</p>`}</div>
-  <div class="card"><h2>Mechanisms (C)</h2>
-    ${C.length ? C.map((e) => `<div class="rate"><div class="top"><span class="name">${esc(e.n)}</span></div><div class="muted small">${esc(e.why)} Record what it shows and what it leaves out.</div></div>`).join("") : `<p class="warn">None on the map. No device makes any participant present.</p>`}</div></div>`;
-}
+/* ---------- form state for tab 1 ---------- */
+function blankPlace() { return { voice: "speaks", spokenBy: "", source: W().sources?.[0] || "", sourceOther: "", where: "" }; }
+let form = newForm();
+function newForm() { return { editId: null, name: "", type: "N", checked: {}, place: {} }; }
 
-function renderShared() {
-  document.querySelectorAll("#nav [data-tab]").forEach((b) => b.setAttribute("aria-current", b.dataset.tab === tab ? "page" : "false"));
-  const sel = document.getElementById("team");
-  if (sel.options.length !== S.teams.length) sel.innerHTML = S.teams.map((t, i) => `<option value="${i}">${esc(t.name)}</option>`).join("");
-  sel.value = ti;
-  document.getElementById("seg").innerHTML = ["s", "o"].map((k) => `<button type="button" data-asm="${k}" aria-pressed="${k === asm}">${asmLabel(k)}</button>`).join("");
-  const a = cur();
-  document.getElementById("sum").innerHTML = ["E", "A", "B", "C", "D"].map((x) => `<span class="pill p${x}">${x} ${a.els.filter((e) => e.r[0] === x).length}</span>`).join("");
+/* ---------- rendering ---------- */
+function renderChrome() {
+  $("#situationName").textContent = W().situation ? "· " + W().situation : "";
+  const b = ([k, l]) => `<button type="button" data-tab="${k}" ${k === tab ? 'aria-current="page"' : ""}>${l}</button>`;
+  const stage = (label, list) => `<div class="stage"><span class="sl">${label}</span><div class="btns">${list.map(b).join("")}</div></div>`;
+  $("#tabs").innerHTML = (ADMIN ? stage("Setup", [["setup", "0 Setup"]]) : "")
+    + stage("Revealing", [["elements", "1 Elements"], ["map", "2 Map"], ["count", "3 Centrality"]])
+    + stage("Filtering", [["filter", "4 Filter"]])
+    + stage("Situating", [["record", "5 Record"], ["vul", "6 Vulnerability"], ["matrix", "7 Matrix"]])
+    + stage("Routes", [["routes", "8 Routes"]]);
+  const teams = W().teams || [];
+  if (!teams.find((t) => t.id === team) && teams[0]) { team = teams[0].id; }
+  $("#teamSel").innerHTML = teams.map((t) => `<option value="${esc(t.id)}" ${t.id === team ? "selected" : ""}>${esc(t.name)}</option>`).join("");
+  $(".teampick").hidden = tab === "setup";
 }
 
 function render() {
-  renderShared();
-  document.getElementById("view").innerHTML = { filter: vFilter, record: vRecord, vul: vVul, matrix: vMatrix, routes: vRoutes }[tab]();
+  renderChrome();
+  if (tab === "setup") renderSetup();
+  else if (tab === "elements") renderElements();
+  else if (tab === "map") renderMap();
+  else if (tab === "filter") renderFilter();
+  else if (tab === "record") renderRecord();
+  else if (tab === "routes") renderRoutes();
+  else if (tab === "vul") renderVul();
+  else if (tab === "matrix") renderMatrix();
+  else renderCount();
 }
 
-function locate(k) { const [t, s, c] = k.split("|"); const a = S.teams[+t][s]; return { a, c, e: a.els.find((x) => x.c === c) }; }
+/* shapes */
+const COL = { H: { stroke: "#C8571E", fill: "#FBE3D5" }, N: { stroke: "#1E8556", fill: "#D8F0E2" } };
+function shapeIcon(type, voice, size = 16) {
+  const c = COL[type === "H" ? "H" : "N"], silent = voice === "silent";
+  const dash = silent ? ' stroke-dasharray="3 2"' : "", fill = "#FFFFFF";
+  if (type === "H") return `<svg aria-hidden="true" width="${size}" height="${size}" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="${fill}" stroke="${c.stroke}" stroke-width="2"${dash}/></svg>`;
+  return `<svg aria-hidden="true" width="${size + 2}" height="${size}" viewBox="0 0 18 16"><path d="M9 1.5 L16.5 14.5 L1.5 14.5 Z" fill="${fill}" stroke="${c.stroke}" stroke-width="2"${dash}/></svg>`;
+}
+const voiceText = (p) => p.voice === "speaks" ? "Speaks" : p.voice === "silent" ? "Silent" : "Spoken for by " + (p.spokenBy || "…");
+const sourceText = (p) => p.source === "__other" ? (p.sourceOther || "Other") : p.source;
 
+/* ----- tab 0: setup ----- */
+function renderSetup() {
+  const w = W();
+  const usedAsm = new Set(data.elements.flatMap((e) => Object.keys(e.placements || {})));
+  const usedTeam = new Set(data.elements.map((e) => e.team));
+  $("#view").innerHTML = `
+  <div class="grid3">
+    <div class="card">
+      <h2>Situation</h2>
+      <div class="field"><label class="label" for="sitName">Situation name</label><input id="sitName" type="text" value="${esc(w.situation)}"></div>
+      <h2 style="margin-top:18px">Teams</h2>
+      <div class="listed">
+        ${(w.teams || []).map((t, i) => `<div class="item"><input type="text" aria-label="Team name" data-team-name="${i}" value="${esc(t.name)}">${usedTeam.has(t.id) ? `<span class="muted small">has data</span>` : `<button type="button" class="linkbtn danger" data-team-del="${i}">Remove</button>`}</div>`).join("")}
+      </div>
+      <p><button type="button" class="btn ghost" id="teamAdd">+ Add team</button></p>
+    </div>
+    <div class="card">
+      <h2>Stakeholder assemblages</h2>
+      <p class="muted">Each assemblage becomes its own map in tab 2. Numbers (A1, A2) never change, even if you rename one.</p>
+      <div class="listed">
+        ${assemblages().map((a, i) => `<div class="item"><span class="tag">A${a.n}</span><input type="text" aria-label="Assemblage name" data-asm-name="${i}" value="${esc(a.name)}">${usedAsm.has(a.id) ? `<span class="muted small">has data</span>` : `<button type="button" class="linkbtn danger" data-asm-del="${i}">Remove</button>`}</div>`).join("")}
+        <div class="item muted"><span class="tag">A0</span><span>Not in any assemblage (always there)</span></div>
+      </div>
+      <p><button type="button" class="btn ghost" id="asmAdd">+ Add assemblage</button></p>
+    </div>
+    <div class="card">
+      <h2>Source types</h2>
+      <p class="muted">Options in the source dropdown. “Other” is always added.</p>
+      <div class="listed">
+        ${(w.sources || []).map((s, i) => `<div class="item"><input type="text" aria-label="Source type" data-src-name="${i}" value="${esc(s)}"><button type="button" class="linkbtn danger" data-src-del="${i}">Remove</button></div>`).join("")}
+      </div>
+      <p><button type="button" class="btn ghost" id="srcAdd">+ Add source type</button></p>
+    </div>
+  </div>
+  <p class="muted small" style="margin-top:16px">Changes save when you leave a field. Workshop ID: <b>${esc(WID)}</b>. Students open the same link without the key.</p>`;
+}
+function saveW(mut) { const w = structuredClone(W()); mut(w); data.workshop = w; store.saveWorkshop(w); render(); }
+
+/* ----- tab 1: elements ----- */
+function renderElements() {
+  $("#view").innerHTML = `<div class="grid2"><form class="card" id="elForm" novalidate></form><div id="elList"></div></div>`;
+  renderForm();
+  renderElList();
+}
+function renderForm() {
+  const f = form;
+  const srcOpts = (sel) => [...(W().sources || []), "__other"].map((s) => `<option value="${esc(s)}" ${s === sel ? "selected" : ""}>${s === "__other" ? "Other…" : esc(s)}</option>`).join("");
+  const asmList = [...assemblages(), { id: NONE, n: 0, name: "Not in any assemblage" }];
+  const blocks = asmList.filter((a) => f.checked[a.id]).map((a) => {
+    const p = f.place[a.id] || (f.place[a.id] = blankPlace());
+    return `<div class="place">
+      <b>In ${esc(a.name)} <span class="muted">· A${a.n}</span></b>
+      <div class="row"><select aria-label="Voice in ${esc(a.name)}" data-p="${a.id}" data-k="voice">${VOICES.map((o) => `<option value="${o.v}" ${o.v === p.voice ? "selected" : ""}>${o.label}</option>`).join("")}</select>
+        <input type="text" placeholder="Spoken for by" aria-label="Spoken for by, ${esc(a.name)}" data-p="${a.id}" data-k="spokenBy" value="${esc(p.spokenBy)}" ${p.voice === "spoken" ? "" : "disabled"}></div>
+      <div class="row"><select aria-label="Source in ${esc(a.name)}" data-p="${a.id}" data-k="source">${srcOpts(p.source)}</select>
+        <input type="text" placeholder="${p.source === "__other" ? "Type the source" : "Where: which material, which passage"}" aria-label="Where, ${esc(a.name)}" data-p="${a.id}" data-k="${p.source === "__other" ? "sourceOther" : "where"}" value="${esc(p.source === "__other" ? p.sourceOther : p.where)}"></div>
+      ${p.source === "__other" ? `<input type="text" placeholder="Where: which material, which passage" aria-label="Where, ${esc(a.name)}" data-p="${a.id}" data-k="where" value="${esc(p.where)}">` : ""}
+    </div>`;
+  }).join("");
+  const anyChecked = Object.values(f.checked).some(Boolean);
+  $("#elForm").innerHTML = `
+    <h2>${f.editId ? "Edit " + esc(elCode(elById(f.editId) || { type: f.type, no: "" })) : "Add an element"}</h2>
+    <div class="field"><label class="label" for="fName">Element</label><input id="fName" type="text" value="${esc(f.name)}" placeholder="e.g. Water" autocomplete="off"></div>
+    <div class="field"><span class="label">Type</span><div class="opts">
+      <label><input type="radio" name="fType" value="H" ${f.type === "H" ? "checked" : ""} ${f.editId ? "disabled" : ""}> Human</label>
+      <label><input type="radio" name="fType" value="N" ${f.type === "N" ? "checked" : ""} ${f.editId ? "disabled" : ""}> Nonhuman</label></div></div>
+    <div class="field"><span class="label">Stakeholder assemblage <span class="muted" style="font-weight:400">(more than one OK)</span></span><div class="opts">
+      ${asmList.map((a) => `<label><input type="checkbox" data-chk="${a.id}" ${f.checked[a.id] ? "checked" : ""}> ${esc(a.name)}</label>`).join("")}</div></div>
+    ${anyChecked ? `<p class="muted small" style="margin:0 0 10px">One box per checked assemblage. Voice and source can differ.</p>` : ""}
+    ${blocks}
+    <p class="muted small" id="formMsg" style="min-height:1em;margin:0"></p>
+    <div class="formbtns">
+      <button type="submit" class="btn primary">${f.editId ? "Save changes" : "Add element"}</button>
+      ${f.editId ? `<button type="button" class="btn ghost" id="formCancel">Cancel</button>` : ""}
+    </div>`;
+}
+function renderElList() {
+  const els = teamElements();
+  const tname = (W().teams || []).find((t) => t.id === team)?.name || "";
+  if (!els.length) { $("#elList").innerHTML = `<div class="empty">No elements yet for ${esc(tname)}. Add the human stakeholders first (H), then the nonhumans you find (N).</div>`; return; }
+  const placements = els.reduce((n, e) => n + Object.keys(e.placements || {}).length, 0);
+  const rows = els.map((e) => orderedPlacements(e).map((aid, i) => {
+    const p = e.placements[aid];
+    const del = pendingDelete && pendingDelete.kind === "el" && pendingDelete.id === e.id;
+    const nLines = data.relations.filter((r) => r.from === e.id || r.to === e.id).length;
+    const acts = del
+      ? `<span class="confirm">${nLines ? `Delete? ${nLines} line${nLines > 1 ? "s" : ""} will go too.` : "Delete?"} <button type="button" class="linkbtn danger" data-del-yes="${e.id}">Delete</button><button type="button" class="linkbtn" data-del-no>Keep</button></span>`
+      : `<button type="button" class="linkbtn" data-edit="${e.id}">Edit</button><button type="button" class="linkbtn danger" data-del="${e.id}">Delete</button>`;
+    return `<tr class="${i ? "cont" : ""}">
+      <td class="code">${esc(placeCode(e, aid))}</td>
+      <td>${shapeIcon(e.type, p.voice)}</td>
+      <td>${i ? `<span class="muted">${esc(e.name)}</span>` : `${esc(e.name)}<div class="actm">${acts}</div>`}</td>
+      <td>${aid === NONE ? "None" : esc(asmById(aid)?.name)}</td>
+      <td>${esc(voiceText(p))}</td>
+      <td>${esc(sourceText(p))}${p.where ? `<br><span class="muted small">${esc(p.where)}</span>` : ""}</td>
+</tr>`;
+  }).join("")).join("");
+  $("#elList").innerHTML = `<div class="card"><h2>${esc(tname)} · ${els.length} elements, ${placements} placements</h2>
+    <div class="tablewrap"><table class="eltable"><thead><tr><th>No.</th><th></th><th>Element</th><th>Assemblage</th><th>Voice</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <p class="muted small">Numbers are automatic: H or N + element number, then ·A + assemblage number. The same element in two assemblages keeps its number.</p></div>`;
+}
+async function submitForm() {
+  const f = form;
+  const msg = (t) => { const m = $("#formMsg"); if (m) m.textContent = t; };
+  const name = f.name.trim();
+  const checked = Object.keys(f.checked).filter((k) => f.checked[k]);
+  if (!name) return msg("Write the element’s name.");
+  if (!checked.length) return msg("Check at least one assemblage, or “Not in any assemblage”.");
+  const placements = {};
+  for (const aid of checked) {
+    const p = { ...(f.place[aid] || blankPlace()) };
+    if (p.voice === "spoken" && !p.spokenBy.trim()) return msg("Write who speaks for it in " + (asmById(aid)?.name || "") + ".");
+    if (p.voice !== "spoken") p.spokenBy = "";
+    if (p.source !== "__other") p.sourceOther = "";
+    placements[aid] = p;
+  }
+  if (f.editId) {
+    const old = elById(f.editId);
+    for (const aid of checked) { const op = old?.placements?.[aid]; if (op && typeof op.x === "number") { placements[aid].x = op.x; placements[aid].y = op.y; } }
+    const removed = Object.keys(old?.placements || {}).filter((a) => !checked.includes(a));
+    const dropRel = data.relations.filter((r) => removed.includes(r.assemblage) && (r.from === f.editId || r.to === f.editId)).map((r) => r.id);
+    await store.updateElement(f.editId, { name, placements });
+    if (dropRel.length) await store.deleteDocs([], dropRel);
+  } else {
+    const no = 1 + Math.max(0, ...data.elements.filter((e) => e.team === team && e.type === f.type).map((e) => e.no || 0));
+    await store.addElement({ team, type: f.type, no, name, placements });
+  }
+  const keepType = f.type;
+  form = newForm(); form.type = keepType;
+  renderForm(); $("#fName")?.focus();
+}
+
+/* ----- tab 2: map ----- */
+const VB_W = 600, VB_H = 480, S = 34;
+function ringSlots(n) {
+  // evenly spaced points on a circle, starting at the top; a second inner ring when crowded
+  const outer = Math.min(n, 14), inner = n - outer, slots = [];
+  for (let i = 0; i < outer; i++) { const t = -Math.PI / 2 + (2 * Math.PI * i) / outer; slots.push([0.5 + 0.38 * Math.cos(t), 0.47 + 0.37 * Math.sin(t)]); }
+  for (let i = 0; i < inner; i++) { const t = -Math.PI / 2 + Math.PI / inner + (2 * Math.PI * i) / inner; slots.push([0.5 + 0.19 * Math.cos(t), 0.47 + 0.18 * Math.sin(t)]); }
+  return slots;
+}
+function layoutDefaults(list) {
+  // elements nobody has moved yet sit on a circle, so any two can be joined without crossing the others
+  const taken = list.filter(({ p }) => typeof p.x === "number" && typeof p.y === "number").map(({ p }) => [p.x, p.y]);
+  const slots = ringSlots(Math.max(list.length, 3));
+  const free = (s) => taken.every(([x, y]) => Math.abs(x - s[0]) > 0.1 || Math.abs(y - s[1]) > 0.12);
+  return list.map(({ e, p }) => {
+    if (typeof p.x === "number" && typeof p.y === "number") return { e, p, x: p.x, y: p.y };
+    const s = slots.find(free) || slots.find((x) => !taken.includes(x)) || [0.5, 0.47];
+    taken.push(s);
+    return { e, p, x: s[0], y: s[1] };
+  });
+}
+async function resetLayout(aid) {
+  const list = teamElements().filter((x) => x.placements?.[aid]);
+  list.forEach((x) => { x.placements[aid].x = null; x.placements[aid].y = null; });
+  renderMap();
+  await Promise.all(list.map((x) => store.setPosition(x.id, aid, null, null)));
+}
+function renderMap() {
+  const els = teamElements();
+  const rels = teamRelations();
+  const maps = assemblages().map((a) => {
+    const nodes = layoutDefaults(els.filter((e) => e.placements?.[a.id]).map((e) => ({ e, p: e.placements[a.id] })));
+    const pos = Object.fromEntries(nodes.map((n) => [n.e.id, [n.x * VB_W, n.y * VB_H]]));
+    const lines = rels.filter((r) => r.assemblage === a.id && pos[r.from] && pos[r.to]).map((r) => {
+      const [x1, y1] = pos[r.from], [x2, y2] = pos[r.to];
+      const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+      const lab = `Edit relation ${r.no}: ${r.verb}`;
+      return `<g class="rlab" data-rel="${r.id}" tabindex="0" role="button" aria-label="${esc(lab)}"><line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="transparent" stroke-width="16"/><line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#1F1F1C" stroke-width="2" ${r.disputed ? 'stroke-dasharray="7 5"' : ""}/>
+        ${showLabels
+          ? `<text x="${mx}" y="${my - 6}" text-anchor="middle" font-size="12" fill="#2F5FD0" paint-order="stroke" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round"><tspan font-weight="700">${r.no}</tspan> ${esc(r.verb.length > 28 ? r.verb.slice(0, 27) + "…" : r.verb)}${r.disputed ? " ?" : ""}</text>`
+          : `<circle cx="${mx}" cy="${my}" r="11" fill="#FFF" stroke="#1F1F1C"/><text x="${mx}" y="${my + 4}" text-anchor="middle" font-size="11" font-weight="700" fill="#1F1F1C">${r.no}</text>`}</g>`;
+    }).join("");
+    const nodeSvg = nodes.map(({ e, p, x, y }) => {
+      const cx = x * VB_W, cy = y * VB_H, h = S / 2;
+      const dash = p.voice === "silent" ? 'stroke-dasharray="6 4"' : "";
+      const sel = selection.aid === a.id && (selection.from === e.id || selection.to === e.id);
+      const c = COL[e.type === "H" ? "H" : "N"], fill = "#FFFFFF";
+      const shape = e.type === "H"
+        ? `<circle cx="${cx}" cy="${cy}" r="${h + 1}" fill="${fill}" stroke="${c.stroke}" stroke-width="2.5" ${dash}/>`
+        : `<path d="M${cx} ${cy - h - 2} L${cx + h + 2} ${cy + h} L${cx - h - 2} ${cy + h} Z" fill="${fill}" stroke="${c.stroke}" stroke-width="2.5" stroke-linejoin="round" ${dash}/>`;
+      return `<g class="node" data-node="${e.id}" data-asm="${a.id}" tabindex="0" role="button" aria-label="${esc(placeCode(e, a.id) + " " + e.name)}">
+        ${sel ? `<rect x="${cx - h - 7}" y="${cy - h - 7}" width="${S + 14}" height="${S + 14}" rx="6" fill="#E6ECFA" stroke="#2F5FD0" stroke-width="2"/>` : ""}
+        ${shape}
+        <text x="${cx}" y="${cy + h + 15}" text-anchor="middle" font-size="12" font-weight="700" fill="#1F1F1C" paint-order="stroke" stroke="#FFFFFF" stroke-width="4" stroke-linejoin="round">${esc(elCode(e))}</text>
+        <text x="${cx}" y="${cy + h + 29}" text-anchor="middle" font-size="12" fill="#1F1F1C" paint-order="stroke" stroke="#FFFFFF" stroke-width="4" stroke-linejoin="round">${esc(e.name.length > 22 ? e.name.slice(0, 21) + "…" : e.name)}</text></g>`;
+    }).join("");
+    return `<div class="mapcard"><div class="head"><b>${esc(a.name)} assemblage <span class="muted" style="font-weight:400">· A${a.n}</span></b><span class="muted small">${nodes.length} elements · ${rels.filter((r) => r.assemblage === a.id).length} lines ${nodes.length > 1 ? `· <button type="button" class="linkbtn" data-relayout="${a.id}">Arrange in a circle</button>` : ""}</span></div>
+      <svg viewBox="0 0 ${VB_W} ${VB_H + 20}" data-map="${a.id}" role="group" aria-label="${esc(a.name)} map">${lines}${nodeSvg}
+      ${nodes.length ? "" : `<text x="${VB_W / 2}" y="${VB_H / 2}" text-anchor="middle" fill="#66645D" font-size="14">No elements in this assemblage yet</text>`}</svg></div>`;
+  }).join("");
+  const outside = els.filter((e) => e.placements?.[NONE]);
+  const f = selection.from && elById(selection.from);
+  const picking = f && !selection.to;
+  const hint = !picking ? "Click two elements in the same map to connect them. Click a relation on a line to edit it." : `${esc(placeCode(f, selection.aid) + " " + f.name)} selected. Now click a second element in the same map.`;
+  $("#view").innerHTML = `<div class="maplayout"><div>
+      <div class="maptools"><span class="${picking ? "hint on" : "hint"}">${hint}</span>
+        <label class="switch"><input type="checkbox" id="labelToggle" ${showLabels ? "checked" : ""}><span class="track" aria-hidden="true"></span>Show relations on lines</label></div>
+      <div class="maps">${maps}</div>
+      <div class="outside"><b class="muted">Not in any assemblage · A0</b>${outside.length ? outside.map((e) => `<span class="chip">${shapeIcon(e.type, e.placements[NONE].voice, 14, "#66645D")}${esc(placeCode(e, NONE) + " " + e.name)}</span>`).join("") : `<span class="muted">none</span>`}<span class="muted small" style="margin-left:auto">Listed only · cannot be connected</span></div>
+      <div class="legend"><span>${shapeIcon("H", "speaks", 14)}Human</span><span>${shapeIcon("N", "speaks", 14)}Nonhuman</span><span>Solid outline = has a voice</span><span>Dashed outline = silent</span><span>Dashed line = team disagrees</span><span>Drag to move · click two elements to connect · click a relation on a line to edit it</span></div>
+    </div>
+    <div class="side">${relList()}</div></div>${relPopup()}`;
+}
+function relPopup() {
+  const f = selection.from && elById(selection.from), t = selection.to && elById(selection.to);
+  if (!f || !t) return "";
+  const lab = (e) => `<b>${esc(placeCode(e, selection.aid))}</b> ${esc(e.name)}`;
+  return `<div class="overlay" id="relOverlay"><div class="pop" role="dialog" aria-modal="true" aria-labelledby="popTitle">
+    <h2 id="popTitle">${relDraft.editId ? "Edit relation" : "New relation"}</h2>
+    <div class="pair"><span>${lab(f)}</span><span class="muted">↔</span><span>${lab(t)}</span></div>
+    <div class="field"><label class="label" for="relVerb">Relation (a verb)</label><input id="relVerb" type="text" value="${esc(relDraft.verb)}" placeholder="e.g. depends on" autocomplete="off"></div>
+    <label class="opts" style="margin-bottom:12px"><span><input type="checkbox" id="relDisp" ${relDraft.disputed ? "checked" : ""}> Team disagrees (dashed line)</span></label>
+    <p class="muted small" id="relMsg" style="min-height:1em;margin:0 0 8px"></p>
+    <div class="formbtns"><button type="button" class="btn primary" id="relSave" ${relDraft.verb.trim() ? "" : "disabled"}>${relDraft.editId ? "Save changes" : "Save relation"}</button><button type="button" class="btn ghost" id="relClear">Cancel</button>
+      ${relDraft.editId ? (relDraft.confirmDel
+        ? `<span class="confirm" style="margin-left:auto">Delete this line? <button type="button" class="linkbtn danger" id="relDelYes">Delete</button><button type="button" class="linkbtn" id="relDelNo">Keep</button></span>`
+        : `<button type="button" class="btn danger" id="relDelete" style="margin-left:auto">Delete line</button>`) : ""}</div>
+  </div></div>`;
+}
+function relList() {
+  const rels = teamRelations();
+  const groups = assemblages().map((a) => {
+    const rs = rels.filter((r) => r.assemblage === a.id);
+    if (!rs.length) return "";
+    return `<h3 style="margin:10px 0 2px">${esc(a.name)} · A${a.n}</h3>` + rs.map((r) => {
+      const f = elById(r.from), t = elById(r.to);
+      const del = pendingDelete && pendingDelete.kind === "rel" && pendingDelete.id === r.id;
+      return `<div class="rel"><span class="n">${r.no}</span><span class="t"><button type="button" class="linkbtn" style="padding:0;text-align:left" data-redit="${r.id}">${esc(f ? elCode(f) : "?")} ${esc(r.verb)} ${esc(t ? elCode(t) : "?")}</button>${r.disputed ? ' <span class="muted">(disputed)</span>' : ""}<br><span class="muted small">${esc(f?.name || "")} → ${esc(t?.name || "")}</span></span>
+        ${del ? `<span class="confirm"><button type="button" class="linkbtn danger" data-rdel-yes="${r.id}">Delete</button><button type="button" class="linkbtn" data-del-no>Keep</button></span>`
+              : `<button type="button" class="linkbtn" data-rdisp="${r.id}">${r.disputed ? "Agreed" : "Disputed"}</button><button type="button" class="linkbtn danger" data-rdel="${r.id}">Delete</button>`}</div>`;
+    }).join("");
+  }).join("");
+  return `<div class="card"><h2>Relations · ${rels.length}</h2>${groups || `<p class="muted">No lines yet.</p>`}</div>`;
+}
+function refreshSide() { const side = $(".side"); if (side) side.innerHTML = relList(); }
+async function saveRelation() {
+  const { aid, from, to } = selection;
+  const verb = relDraft.verb.trim();
+  if (!aid || !from || !to || !verb) return;
+  if (relDraft.editId) {
+    await store.updateRelation(relDraft.editId, { verb, disputed: relDraft.disputed });
+  } else {
+    const no = 1 + Math.max(0, ...data.relations.filter((r) => r.team === team).map((r) => r.no || 0));
+    await store.addRelation({ team, assemblage: aid, from, to, verb, disputed: relDraft.disputed, no });
+  }
+  selection = { aid: null, from: null, to: null }; relDraft = { verb: "", disputed: false };
+  renderMap();
+}
+function openRelation(rid) {
+  const r = data.relations.find((x) => x.id === rid); if (!r) return;
+  selection = { aid: r.assemblage, from: r.from, to: r.to };
+  relDraft = { verb: r.verb, disputed: !!r.disputed, editId: r.id };
+  renderMap();
+  const v = $("#relVerb"); v?.focus(); v?.select();
+}
+function clickNode(id, aid) {
+  if (selection.aid !== aid || (!selection.from) || (selection.from && selection.to)) {
+    selection = { aid, from: id, to: null };
+  } else if (selection.from === id) {
+    selection = { aid: null, from: null, to: null };
+  } else {
+    selection.to = id;
+  }
+  if (selection.to) {
+    const ex = data.relations.find((r) => r.team === team && r.assemblage === aid && ((r.from === selection.from && r.to === id) || (r.from === id && r.to === selection.from)));
+    relDraft = ex ? { verb: ex.verb, disputed: !!ex.disputed, editId: ex.id } : { verb: "", disputed: false };
+  }
+  renderMap();
+  if (selection.to) { const v = $("#relVerb"); v?.focus(); v?.select(); }
+}
+
+/* ----- tab 3: connections ----- */
+function degrees() {
+  const deg = {}; // key elId|aid
+  for (const r of teamRelations()) {
+    deg[r.from + "|" + r.assemblage] = (deg[r.from + "|" + r.assemblage] || 0) + 1;
+    deg[r.to + "|" + r.assemblage] = (deg[r.to + "|" + r.assemblage] || 0) + 1;
+  }
+  return deg;
+}
+function normDeg(d, n) { return n > 1 ? d / (n - 1) : 0; }
+function fmt(c) { return c.toFixed(2); }
+function renderCount() {
+  const els = teamElements(), deg = degrees(), rels = teamRelations();
+  const tname = (W().teams || []).find((t) => t.id === team)?.name || "";
+  let tops = [], noLines = [];
+  const sections = assemblages().map((a) => {
+    const onMap = els.filter((e) => e.placements?.[a.id]);
+    const list = onMap.map((e) => ({ e, d: deg[e.id + "|" + a.id] || 0, c: normDeg(deg[e.id + "|" + a.id] || 0, onMap.length) })).sort((x, y) => y.d - x.d || elCode(x.e).localeCompare(elCode(y.e)));
+    if (list.length) {
+      const top = list[0].d;
+      const leaders = list.filter((x) => x.d === top);
+      tops.push(`<div class="kv"><span>${esc(a.name)} · A${a.n}</span><b>${top === 0 ? "no lines" : leaders.length > 1 ? `tie at ${fmt(leaders[0].c)} (${leaders.length})` : `${esc(elCode(leaders[0].e) + " " + leaders[0].e.name)} (${fmt(leaders[0].c)})`}</b></div>`);
+    }
+    list.filter((x) => x.d === 0).forEach((x) => noLines.push(placeCode(x.e, a.id) + " " + x.e.name));
+    return `<tr class="group"><td colspan="6">${esc(a.name.toUpperCase())} ASSEMBLAGE · A${a.n}</td></tr>` + (list.length ? list.map((x) => `<tr>
+      <td class="code">${esc(placeCode(x.e, a.id))}</td><td>${shapeIcon(x.e.type, x.e.placements[a.id].voice)}</td><td>${esc(x.e.name)}</td>
+      <td class="num"><b>${fmt(x.c)}</b></td><td class="num muted">${x.d}</td>
+      <td class="bar-cell" style="width:140px">${x.d ? `<span style="width:${Math.max(2, Math.round(x.c * 120))}px"></span>` : `<em class="muted small">no lines</em>`}</td></tr>`).join("") : `<tr><td colspan="6" class="muted">No elements</td></tr>`);
+  }).join("");
+  const outside = els.filter((e) => e.placements?.[NONE]);
+  const outRows = outside.length ? `<tr class="group"><td colspan="6">NOT IN ANY ASSEMBLAGE · A0 · NOT COUNTED</td></tr>` + outside.map((e) => `<tr class="muted"><td class="code">${esc(placeCode(e, NONE))}</td><td>${shapeIcon(e.type, e.placements[NONE].voice, 16, "#66645D")}</td><td>${esc(e.name)}</td><td class="num">–</td><td class="num">–</td><td></td></tr>`).join("") : "";
+  $("#view").innerHTML = `<div class="cmaps">${centralityMaps(els, deg)}</div><div class="countgrid">
+    <div class="card"><h2>${esc(tname)} · connections per element <span class="muted" style="font-weight:400">(counted inside each assemblage)</span></h2>
+      <div class="tablewrap"><table><thead><tr><th>No.</th><th></th><th>Element</th><th class="num">Normalized degree centrality</th><th class="num">Lines</th><th></th></tr></thead><tbody>${sections}${outRows}</tbody></table></div>
+      <p class="muted small">Normalized degree centrality = lines ÷ (elements in that map − 1), from 0 to 1. Counted inside each assemblage’s map. Dashed lines are counted.</p></div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card"><h2>Most connected</h2>${tops.join("") || `<p class="muted">No elements yet.</p>`}</div>
+      <div class="card"><h2>Summary</h2>
+        <div class="kv"><span>Elements</span><b>${els.length}</b></div>
+        ${assemblages().map((a) => `<div class="kv"><span>A${a.n} elements · lines</span><b>${els.filter((e) => e.placements?.[a.id]).length} · ${rels.filter((r) => r.assemblage === a.id).length}</b></div>`).join("")}
+        <div class="kv"><span>Not in any assemblage</span><b>${outside.length}</b></div></div>
+      <div class="card"><h2>No lines yet</h2>${noLines.length ? noLines.map((t) => `<div>${esc(t)}</div>`).join("") : `<p class="muted" style="margin:0">Every element on a map has at least one line.</p>`}</div>
+      <div class="card"><h2>Download (all teams)</h2>
+        <div style="display:flex;flex-direction:column;gap:8px"><button type="button" class="btn" id="dlEl">Elements and counts (CSV)</button><button type="button" class="btn" id="dlRel">Relations (CSV)</button></div></div>
+    </div></div>`;
+}
+function csv(rows) { return "﻿" + rows.map((r) => r.map((v) => { const s = String(v ?? ""); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }).join(",")).join("\n"); }
+function download(name, text) {
+  const blob = new Blob([text], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+function exportElements() {
+  const teamName = (id) => (W().teams || []).find((t) => t.id === id)?.name || id;
+  const rows = [["workshop", "team", "element_id", "placement_code", "element_code", "type", "name", "assemblage_code", "assemblage_name", "voice", "spoken_by", "source", "where", "degree_in_assemblage", "elements_in_assemblage", "degree_centrality_normalized", "filter_result", "stopped_at", "filter_reason", "sources", "problem_situation", "integrity_dimension", "process_touched", "vulnerability", "vulnerability_reason", "conditions_of_makeability", "iteration_log", "mechanism_note"]];
+  const saveTeam = team;
+  for (const t of (W().teams || [])) {
+    team = t.id; const deg = degrees(); const tEls = teamElements(); const nOn = (aid) => tEls.filter((e) => e.placements?.[aid]).length;
+    for (const e of teamElements()) for (const aid of orderedPlacements(e)) {
+      const p = e.placements[aid];
+      rows.push([WID, teamName(t.id), e.id, placeCode(e, aid), elCode(e), e.type === "H" ? "human" : "nonhuman", e.name, asmCode(aid), asmById(aid)?.name, p.voice, p.spokenBy, sourceText(p), p.where, aid === NONE ? "" : (deg[e.id + "|" + aid] || 0), aid === NONE ? "" : nOn(aid), aid === NONE ? "" : normDeg(deg[e.id + "|" + aid] || 0, nOn(aid)).toFixed(3),
+        aid === NONE ? "" : resOf(e, aid), aid === NONE ? "" : stopAt(resOf(e, aid)), p.fwhy || "", resOf(e, aid) === "A" ? (p.src ?? 0) : "",
+        e.type === "N" && aid !== NONE ? (W().interventions?.[t.id] || "") : "", p.vul?.dim || "", typeof p.vul?.p === "number" ? PROCS[p.vul.p] : "", typeof p.vul?.lv === "number" ? LEVELS[p.vul.lv] : "", p.vul?.why || "",
+        (p.mk || []).join("; "), p.log || "", p.note || ""]);
+    }
+  }
+  team = saveTeam;
+  download(`mth-situating-elements-${WID}.csv`, csv(rows));
+}
+function exportRelations() {
+  const teamName = (id) => (W().teams || []).find((t) => t.id === id)?.name || id;
+  const rows = [["workshop", "team", "line_no", "assemblage_code", "assemblage_name", "from_code", "from_name", "relation", "to_code", "to_name", "disputed"]];
+  for (const r of [...data.relations].sort((a, b) => (a.team + a.no).localeCompare(b.team + b.no, undefined, { numeric: true }))) {
+    const f = elById(r.from), t = elById(r.to);
+    rows.push([WID, teamName(r.team), r.no, asmCode(r.assemblage), asmById(r.assemblage)?.name, f ? placeCode(f, r.assemblage) : "", f?.name, r.verb, t ? placeCode(t, r.assemblage) : "", t?.name, r.disputed ? "yes" : "no"]);
+  }
+  download(`mth-situating-relations-${WID}.csv`, csv(rows));
+}
+
+/* ----- tab 3: centrality maps ----- */
+function centralityMaps(els, deg) {
+  return assemblages().map((a) => {
+    const onMap = els.filter((e) => e.placements?.[a.id]);
+    const n = onMap.length;
+    const nodes = layoutDefaults(onMap.map((e) => ({ e, p: e.placements[a.id] })));
+    const pos = Object.fromEntries(nodes.map((x) => [x.e.id, [x.x * VB_W, x.y * VB_H]]));
+    const lines = teamRelations().filter((r) => r.assemblage === a.id && pos[r.from] && pos[r.to]).map((r) => `<line x1="${pos[r.from][0]}" y1="${pos[r.from][1]}" x2="${pos[r.to][0]}" y2="${pos[r.to][1]}" stroke="#D6D3CA" stroke-width="1.5"/>`).join("");
+    const shapes = nodes.map(({ e }) => {
+      const [cx, cy] = pos[e.id], c = normDeg(deg[e.id + "|" + a.id] || 0, n);
+      if (e.type === "H") return `<circle cx="${cx}" cy="${cy}" r="7" fill="#FFF" stroke="#9A978E" stroke-width="1.5"/><text x="${cx}" y="${cy + 21}" text-anchor="middle" font-size="11" fill="#66645D">${esc(elCode(e))}</text>`;
+      const h = 9 + c * 26;
+      return `<path d="M${cx} ${cy - h} L${cx + h * 1.1} ${cy + h * .8} L${cx - h * 1.1} ${cy + h * .8} Z" fill="#FFF" stroke="${COL.N.stroke}" stroke-width="2.5" stroke-linejoin="round"/>
+        <text x="${cx}" y="${cy + h * .8 + 15}" text-anchor="middle" font-size="12" font-weight="700" fill="#1F1F1C" paint-order="stroke" stroke="#FFF" stroke-width="4" stroke-linejoin="round">${esc(elCode(e) + " " + (e.name.length > 20 ? e.name.slice(0, 19) + "…" : e.name))}</text>
+        <text x="${cx}" y="${cy + h * .8 + 29}" text-anchor="middle" font-size="11" fill="${COL.N.stroke}" paint-order="stroke" stroke="#FFF" stroke-width="4" stroke-linejoin="round">${fmt(c)}</text>`;
+    }).join("");
+    return `<div class="mapcard"><div class="head"><b>${esc(a.name)} · A${a.n}</b><span class="muted small">triangle size = centrality</span></div>
+      ${n ? `<svg viewBox="0 0 ${VB_W} ${VB_H + 20}" role="img" aria-label="${esc(a.name)} map sized by centrality">${lines}${shapes}</svg>` : `<div class="empty" style="margin:14px">No elements</div>`}</div>`;
+  }).join("");
+}
+
+/* ----- tabs 4–8: filter, record, vulnerability, matrix, routes ----- */
+const LEVELS = ["Low", "Medium-Low", "Medium", "High"];
+const ivOf = (tid) => W().interventions?.[tid] || "";
+const DIMS = ["Biological/ecological flourishing", "Sociotechnical operational functionality", "Material durability and care", "Institutional integrity"];
+const PROCS = ["Producing its components", "Recovering its state"];
+const RESULTS = ["A", "B", "C", "D resource", "D pressure", "D condition"];
+const CONDS = ["co-presence", "observable response", "temporal rhythm", "datafiability", "care dependence", "institutional legibility"];
+let vAsm = ls.get("sm-vasm", "a1");
+const resOf = (e, aid) => e.type === "H" ? "E" : (e.placements?.[aid]?.fr || "");
+const stopAt = (r) => !r ? "" : r === "E" ? "E yes" : r === "A" ? "E no · A yes" : r === "B" ? "E no · A no · B yes" : r === "C" ? "E no · A, B no · C yes" : "E no · A, B, C no";
+const rpill = (r) => r ? `<span class="pill p${r[0]}">${esc(r)}</span>` : `<span class="pill pQ">?</span>`;
+function onMapOf(aid) { return teamElements().filter((e) => e.placements?.[aid]); }
+function withDeg(aid) {
+  const onMap = onMapOf(aid), deg = degrees();
+  return onMap.map((e) => ({ e, p: e.placements[aid], r: resOf(e, aid), d: deg[e.id + "|" + aid] || 0, n: onMap.length, c: normDeg(deg[e.id + "|" + aid] || 0, onMap.length) }));
+}
+const As = (aid) => withDeg(aid).filter((x) => x.r === "A").sort((x, y) => y.c - x.c || x.e.no - y.e.no);
+function medianC(list) { const v = list.map((x) => x.c).sort((p, q) => p - q), m = v.length >> 1; return v.length ? (v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2) : 0; }
+function linked(aid, x, y) { return teamRelations().filter((r) => r.assemblage === aid && ((r.from === x && r.to === y) || (r.from === y && r.to === x))); }
+function asmSeg() {
+  if (!assemblages().find((a) => a.id === vAsm) && assemblages()[0]) vAsm = assemblages()[0].id;
+  return `<div class="seg" role="group" aria-label="Assemblage">${assemblages().map((a) => `<button type="button" data-vasm="${a.id}" aria-pressed="${a.id === vAsm}">A${a.n} ${esc(a.name)}</button>`).join("")}</div>`;
+}
+function head(extra = "") {
+  const all = withDeg(vAsm);
+  const sum = ["E", "A", "B", "C", "D"].map((x) => `<span class="pill p${x}">${x} ${all.filter((y) => y.r[0] === x).length}</span>`).join(" ");
+  const open = all.filter((y) => !y.r).length;
+  return `<div class="controls"><div class="ctl"><span class="lab">Assemblage</span>${asmSeg()}</div>
+    <div class="ctl"><span class="lab">Filter result</span><div>${sum}${open ? ` <span class="pill pQ">? ${open}</span>` : ""}</div></div>${extra}</div>`;
+}
+const noAsm = () => { if (!asmById(vAsm) && !assemblages()[0]) { $("#view").innerHTML = `<div class="empty">No assemblages yet. Add them in tab 0.</div>`; return true; } return false; };
+const pAttr = (e, f) => `data-pid="${e.id}" data-pasm="${vAsm}" data-pf="${f}"`;
+
+/* tab 4: filter */
+function renderFilter() {
+  if (noAsm()) return;
+  const a = asmById(vAsm) || assemblages()[0];
+  const list = withDeg(vAsm).sort((x, y) => (x.e.type === y.e.type ? x.e.no - y.e.no : x.e.type === "H" ? -1 : 1));
+  const rows = list.map((x) => `<tr><td class="code">${esc(placeCode(x.e, vAsm))}</td><td>${shapeIcon(x.e.type, x.p.voice)}</td><td>${esc(x.e.name)}</td>
+    <td>${x.e.type === "H" ? rpill("E") : `<select ${pAttr(x.e, "fr")} aria-label="Result, ${esc(x.e.name)}"><option value="">Not yet…</option>${RESULTS.map((r) => `<option ${r === x.r ? "selected" : ""}>${r}</option>`).join("")}</select>`}</td>
+    <td class="code small">${stopAt(x.r)}</td>
+    <td style="min-width:240px">${x.e.type === "H" ? `<span class="muted small">Human stakeholder. Stays as a column.</span>` : `<textarea ${pAttr(x.e, "fwhy")} rows="1" placeholder="Reason" aria-label="Reason, ${esc(x.e.name)}">${esc(x.p.fwhy || "")}</textarea>`}</td></tr>`).join("");
+  $("#view").innerHTML = `<div class="card">${head()}
+    <p class="muted small" style="margin:0 0 12px;max-width:900px"><b>E</b> Is it human? <b>A</b> Does it produce and maintain itself? <b>B</b> Is it what the design works on directly? A and B are asked independently. <b>C</b> If neither: does it make other entities present? <b>D</b> Otherwise: a resource used, a pressure exerted or a condition imposed. Judged by its relation to this design, not by kind. If one element plays two parts, split it in tab 1.</p>
+    <div class="tablewrap"><table class="ftable"><thead><tr><th>No.</th><th></th><th>Element</th><th>Result</th><th>Stopped at</th><th>Reason</th></tr></thead>
+    <tbody>${rows || `<tr><td colspan="6" class="muted">No elements in the ${esc(a.name)} map yet.</td></tr>`}</tbody></table></div></div>`;
+}
+
+/* tab 5: relational record */
+function renderRecord() {
+  if (noAsm()) return;
+  const all = withDeg(vAsm), A = all.filter((x) => x.r === "A"), m = medianC(A);
+  if (!A.length) { $("#view").innerHTML = `<div class="card">${head()}<p class="warn">No stake-holding participant (A) in this map yet. Filter in tab 4. If none is A after filtering, check the boundary: what lies outside the theme and is affected by it?</p></div>`; return; }
+  const cols = all.sort((x, y) => (x.e.type === y.e.type ? x.e.no - y.e.no : x.e.type === "H" ? -1 : 1));
+  let h = `<div class="tablewrap"><table class="rec" style="table-layout:fixed;min-width:${180 + cols.length * 36 + 150}px"><thead>
+    <tr><th style="width:180px;border-bottom:0"></th>${cols.map((c) => `<th style="width:36px;border-bottom:0"><div class="vh" title="${esc(c.e.name)}">${esc(elCode(c.e) + " " + c.e.name)}</div></th>`).join("")}<th class="num" style="width:76px;border-bottom:0">Degree</th><th class="num" style="width:74px;border-bottom:0">Sources</th></tr>
+    <tr><th></th>${cols.map((c) => `<th style="text-align:center">${c.r ? `<span class="pill p${c.r[0]}" style="padding:1px 5px">${c.r[0]}</span>` : `<span class="pill pQ" style="padding:1px 5px">?</span>`}</th>`).join("")}<th></th><th></th></tr></thead><tbody>`;
+  A.forEach((x) => {
+    const src = x.p.src ?? 0, low = A.length === 1 || x.c < m;
+    h += `<tr><td>${shapeIcon("N", x.p.voice)} ${esc(elCode(x.e) + " " + x.e.name)}</td>${cols.map((c) => {
+      if (c.e.id === x.e.id) return `<td><span class="cell self"></span></td>`;
+      const ls_ = linked(vAsm, x.e.id, c.e.id);
+      const cls = !ls_.length ? "" : ls_.every((r) => r.disputed) ? "disp" : "on";
+      return `<td><span class="cell ${cls}" title="${esc(x.e.name)} – ${esc(c.e.name)}${ls_.length ? ": " + esc(ls_.map((r) => r.verb).join("; ")) : ""}"></span></td>`;
+    }).join("")}<td class="num"><b>${x.d}/${x.n - 1}</b><div class="muted small">${fmt(x.c)}</div></td>
+    <td class="num"><input type="text" inputmode="numeric" ${pAttr(x.e, "src")} value="${src}" style="width:52px;text-align:right" aria-label="Sources, ${esc(x.e.name)}"></td></tr>`;
+    if (low && src <= 1) h += `<tr><td colspan="${cols.length + 3}" class="warn" style="padding:4px 6px 10px">${esc(x.e.name)}: low degree from ${src} source${src === 1 ? "" : "s"}. Further inquiry before reading it as peripheral.</td></tr>`;
+  });
+  $("#view").innerHTML = `<div class="card">${head()}
+    <p class="muted small" style="margin:0 0 12px">Rows: A only. Columns: every element on this map, humans and background included. Filled cell: a line on the map (striped: team disagrees). Sources: how many sources evidence this participant’s relations.</p>
+    ${h}</tbody></table></div><p class="muted small" style="margin:10px 0 0">Degree = lines ÷ (elements in this map − 1). Median of A: ${fmt(m)}.</p></div>`;
+}
+
+/* tab 6: vulnerability (A only) */
+function renderVul() {
+  if (noAsm()) return;
+  const a = asmById(vAsm) || assemblages()[0];
+  const list = As(vAsm), notYet = withDeg(vAsm).filter((x) => !x.r);
+  const done = list.filter((x) => typeof x.p.vul?.lv === "number").length;
+  const cards = list.map((x) => {
+    const v = x.p.vul || {}, rated = typeof v.lv === "number";
+    return `<div class="rate${rated ? "" : " todo"}">
+      <div class="top">${shapeIcon("N", x.p.voice)}<span class="code muted small">${esc(placeCode(x.e, vAsm))}</span><b>${esc(x.e.name)}</b><span class="c">degree ${x.d}/${x.n - 1} · ${fmt(x.c)}</span></div>
+      <div class="row"><select data-vid="${x.e.id}" data-vf="dim" aria-label="Integrity dimension, ${esc(x.e.name)}"><option value="">Integrity dimension…</option>${DIMS.map((d) => `<option ${v.dim === d ? "selected" : ""}>${esc(d)}</option>`).join("")}</select>
+      <select data-vid="${x.e.id}" data-vf="p" aria-label="Process touched, ${esc(x.e.name)}"><option value="">Process touched…</option>${PROCS.map((p, i) => `<option value="${i}" ${v.p === i ? "selected" : ""}>${p}</option>`).join("")}</select>
+      <select data-vid="${x.e.id}" data-vf="lv" aria-label="Vulnerability, ${esc(x.e.name)}"><option value="">Vulnerability…</option>${LEVELS.map((l, i) => `<option value="${i}" ${v.lv === i ? "selected" : ""}>${l}</option>`).join("")}</select></div>
+      <textarea data-vid="${x.e.id}" data-vf="why" rows="2" placeholder="Reason and source" aria-label="Reason, ${esc(x.e.name)}">${esc(v.why || "")}</textarea></div>`;
+  }).join("");
+  $("#view").innerHTML = `<div class="card">${head(`<span class="muted small">Rated ${done} / ${list.length}</span>`)}
+    <div class="ctl" style="max-width:760px;margin-bottom:16px"><label for="ivText">Problem situation</label>
+      <textarea id="ivText" rows="2" placeholder="Describe the problem situation in your own words">${esc(ivOf(team))}</textarea>
+      <span class="muted small">This team’s problem situation. Vulnerability below is rated in this situation.</span></div>
+    <p class="muted small" style="margin:0 0 10px">Only stake-holding participants (A) in the ${esc(a.name)} map are rated: how far does the situation unsettle the way it keeps itself going? Listed by degree.</p>
+    ${notYet.length ? `<p class="warn" style="margin:0 0 10px">Not filtered yet (tab 4): ${notYet.map((x) => esc(elCode(x.e) + " " + x.e.name)).join(", ")}</p>` : ""}
+    <div class="ratelist">${cards || `<div class="empty">No A in this map yet. Filter in tab 4.</div>`}</div></div>`;
+}
+function saveVul(eid, field, value) {
+  const e = elById(eid); if (!e) return;
+  const p = e.placements[vAsm]; const v = { dim: "", lv: null, why: "", ...(p.vul || {}) };
+  v[field] = field === "lv" || field === "p" ? (value === "" ? null : +value) : value;
+  if (v.p === undefined) v.p = null;
+  p.vul = v; // optimistic
+  store.setVul(eid, vAsm, v);
+}
+
+/* tab 7: matrix (A only) */
+function renderMatrix(target = $("#view")) {
+  if (noAsm()) return;
+  const all = As(vAsm), cs = medianC(all);
+  const W2 = 600, H = 450, L = 70, T = 20, PW = W2 - L - 20, PH = H - T - 58;
+  // vertical = centrality → scope of participation; horizontal = vulnerability → priority
+  const X = (lv) => L + (lv + 0.5) / 4 * PW, Y = (c) => T + PH - c * PH;
+  let g = `<rect x="${L}" y="${T}" width="${PW}" height="${PH}" fill="#F8F7F3" stroke="#D6D3CA"/>`;
+  const sx = L + PW / 2, sy = Y(cs);
+  g += `<line x1="${sx}" y1="${T}" x2="${sx}" y2="${T + PH}" stroke="#66645D" stroke-dasharray="5 4"/><line x1="${L}" y1="${sy}" x2="${L + PW}" y2="${sy}" stroke="#66645D" stroke-dasharray="5 4"/>`;
+  const ql = (x, y, t, an) => `<text x="${x}" y="${y}" text-anchor="${an}" font-size="10" font-weight="700" fill="#66645D">${t}</text>`;
+  g += ql(L + 8, T + 16, "LOWER PRIORITY · WHOLE PROCESS", "start") + ql(L + PW - 8, T + 16, "PRIORITY · WHOLE PROCESS", "end")
+     + ql(L + 8, T + PH - 8, "LOWER PRIORITY · SPECIFIC DECISIONS", "start") + ql(L + PW - 8, T + PH - 8, "PRIORITY · SPECIFIC DECISIONS", "end");
+  LEVELS.forEach((l, i) => g += `<text x="${X(i)}" y="${T + PH + 18}" text-anchor="middle" font-size="11" fill="#66645D">${l}</text>`);
+  [0, .25, .5, .75, 1].forEach((t) => g += `<text x="${L - 8}" y="${Y(t) + 4}" text-anchor="end" font-size="11" fill="#66645D">${t.toFixed(2)}</text>`);
+  g += `<text x="${L + PW / 2}" y="${H - 10}" text-anchor="middle" font-size="12" fill="#1F1F1C">Vulnerability → priority</text>`;
+  g += `<text transform="translate(16 ${T + PH / 2}) rotate(-90)" text-anchor="middle" font-size="12" fill="#1F1F1C">Centrality → scope of participation</text>`;
+  g += `<text x="${L + 4}" y="${sy - 4}" font-size="10" fill="#66645D">median ${fmt(cs)}</text>`;
+  const seen = {}, unr = [], rows = [];
+  all.forEach((x) => {
+    const v = x.p.vul;
+    if (typeof v?.lv !== "number") { unr.push(x); rows.push(`<tr><td class="code">${esc(placeCode(x.e, vAsm))}</td><td>${esc(x.e.name)}</td><td class="num">${fmt(x.c)}</td><td class="muted">not rated</td><td></td></tr>`); return; }
+    const key = x.c.toFixed(3) + "|" + v.lv, j = seen[key] = (seen[key] || 0) + 1;
+    const px = X(v.lv) + (j - 1) * 16, py = Y(x.c) + (j - 1) * 14, h = 9;
+    g += `<path d="M${px} ${py - h} L${px + h * 1.1} ${py + h * .8} L${px - h * 1.1} ${py + h * .8} Z" fill="#FFF" stroke="${COL.N.stroke}" stroke-width="2.5" stroke-linejoin="round"/><text x="${px > L + PW * 0.65 ? px - 14 : px + 14}" text-anchor="${px > L + PW * 0.65 ? "end" : "start"}" y="${py + 4}" font-size="12" font-weight="600" fill="#1F1F1C" paint-order="stroke" stroke="#F8F7F3" stroke-width="4" stroke-linejoin="round">${esc(elCode(x.e) + " " + x.e.name)}</text>`;
+    const pri = v.lv >= 2, whole = x.c >= cs;
+    rows.push(`<tr><td class="code">${esc(placeCode(x.e, vAsm))}</td><td>${esc(x.e.name)}</td><td class="num">${fmt(x.c)}</td><td>${LEVELS[v.lv]}</td><td><span class="pill ${pri ? "crit" : ""}">${pri ? "Priority" : "Lower priority"} · ${whole ? "whole process" : "specific decisions"}</span></td></tr>`);
+  });
+  target.innerHTML = `<div class="mgrid"><div class="card">${head()}
+      <div class="ctl" style="margin-bottom:14px"><span class="lab">Problem situation</span><div class="ivshow">${ivOf(team) ? esc(ivOf(team)) : `<span class="muted">Not written yet. Write it in tab 6.</span>`}</div></div>
+      ${all.length ? `<p class="muted small" style="margin:0 0 8px">Only A. No one drops off the matrix. Split line: median centrality of A${all.length === 1 ? "; with one A the split means little" : ""}.</p>
+      <div class="plot"><svg viewBox="0 0 ${W2} ${H}" role="img" aria-label="Centrality–vulnerability matrix">${g}</svg></div>
+      ${unr.length ? `<div class="unrated"><span class="muted small">Not rated yet · rate in tab 6</span>${unr.map((x) => `<span class="chip">${shapeIcon("N", x.p.voice, 13)}${esc(elCode(x.e) + " " + x.e.name)}</span>`).join("")}</div>` : ""}`
+      : `<div class="empty">No A in this map yet. Filter in tab 4.</div>`}</div>
+    <div class="card"><h2>Stake-holding participants (A)</h2><p class="muted small" style="margin:-6px 0 10px">Centrality from tab 3, vulnerability from tab 6.</p>
+      <div class="tablewrap"><table><thead><tr><th>No.</th><th>Participant</th><th class="num">Centrality</th><th>Vulnerability</th><th>Reading</th></tr></thead><tbody>${rows.join("") || `<tr><td colspan="5" class="muted">None</td></tr>`}</tbody></table></div></div></div>`;
+}
+
+/* tab 8: routes */
+function renderRoutes() {
+  if (noAsm()) return;
+  const all = withDeg(vAsm), A = all.filter((x) => x.r === "A"), B = all.filter((x) => x.r === "B"), C = all.filter((x) => x.r === "C");
+  const spokes = (x) => {
+    const s = new Set();
+    teamRelations().filter((r) => r.assemblage === vAsm && (r.from === x.e.id || r.to === x.e.id)).forEach((r) => { const o = elById(r.from === x.e.id ? r.to : r.from); if (o?.type === "H") s.add(o.name); });
+    if (x.p.voice === "spoken" && x.p.spokenBy) s.add(x.p.spokenBy);
+    return [...s];
+  };
+  const aRows = A.map((x) => { const on = x.p.mk || [], s = spokes(x);
+    return `<tr><td>${shapeIcon("N", x.p.voice)} ${esc(elCode(x.e) + " " + x.e.name)}</td>
+      <td>${CONDS.map((c) => `<label class="ck"><input type="checkbox" ${pAttr(x.e, "mk")} value="${c}" ${on.includes(c) ? "checked" : ""}>${c}</label>`).join("")}</td>
+      <td class="small">${s.length ? s.map(esc).join(", ") : `<span class="warn">None on the map. Nobody speaks for it here.</span>`}</td></tr>`; }).join("");
+  $("#view").innerHTML = `<div class="card">${head()}<h2>Stake-holding participants (A)</h2>
+    <p class="muted small" style="margin:-6px 0 12px">Conditions of makeability decide how each takes part, not whether. Humans linked to an A, or named as speaking for it, are possible spokespersons, to be confirmed.</p>
+    ${A.length ? `<div class="tablewrap"><table class="ftable"><thead><tr><th>Participant</th><th>Conditions of makeability</th><th>Possible spokespersons</th></tr></thead><tbody>${aRows}</tbody></table></div>` : `<p class="muted">No A in this map yet.</p>`}</div>
+  <div class="grid2b"><div class="card"><h2>Co-shaping participants (B)</h2>
+    ${B.length ? B.map((x) => `<div class="rate"><div class="top"><b>${esc(elCode(x.e) + " " + x.e.name)}</b></div><textarea ${pAttr(x.e, "log")} rows="3" placeholder="Iteration log: operation, breakdown, resistance" aria-label="Iteration log, ${esc(x.e.name)}">${esc(x.p.log || "")}</textarea></div>`).join("") : `<p class="muted small">None.</p>`}</div>
+  <div class="card"><h2>Mechanisms (C)</h2>
+    ${C.length ? C.map((x) => `<div class="rate"><div class="top"><b>${esc(elCode(x.e) + " " + x.e.name)}</b></div><textarea ${pAttr(x.e, "note")} rows="3" placeholder="What it shows and what it leaves out" aria-label="Mechanism note, ${esc(x.e.name)}">${esc(x.p.note || "")}</textarea></div>`).join("") : `<p class="warn">None on the map. No device makes any participant present.</p>`}</div></div>`;
+}
+
+/* save a placement field (filter, sources, conditions, logs) */
+function onPlaceField(t) {
+  const e = elById(t.dataset.pid), aid = t.dataset.pasm, f = t.dataset.pf; if (!e?.placements?.[aid]) return;
+  const p = e.placements[aid];
+  let v;
+  if (f === "mk") { const on = new Set(p.mk || []); t.checked ? on.add(t.value) : on.delete(t.value); v = CONDS.filter((c) => on.has(c)); }
+  else if (f === "src") { const n = parseInt(t.value, 10); v = isNaN(n) || n < 0 ? 0 : n; }
+  else v = t.value;
+  p[f] = v; // optimistic
+  store.setPlace(e.id, aid, f, v);
+  if (f !== "fwhy" && f !== "log" && f !== "note") render();
+}
+
+/* ---------- events ---------- */
 document.addEventListener("click", (ev) => {
-  const t = ev.target.closest("[data-tab],[data-asm]"); if (!t) return;
-  if (t.dataset.tab) { tab = t.dataset.tab; try { history.replaceState(null, "", "#" + tab); } catch (e) {} }
-  if (t.dataset.asm) asm = t.dataset.asm;
-  render();
+  if (ev.target.id === "relOverlay") { selection = { aid: null, from: null, to: null }; relDraft = { verb: "", disputed: false }; renderMap(); return; }
+  const relEl = ev.target.closest("[data-rel]");
+  if (relEl && !ev.target.closest("button")) { openRelation(relEl.dataset.rel); return; }
+  const el = ev.target.closest("button, [data-node]");
+  if (!el) return;
+  const d = el.dataset;
+  if (d.tab) { tab = d.tab; ls.set("sm-tab", tab); pendingDelete = null; render(); return; }
+  // setup
+  if (el.id === "teamAdd") return saveW((w) => { w.teams.push({ id: "t" + (w.nextTeam || w.teams.length + 1), name: "Team " + (w.nextTeam || w.teams.length + 1) }); w.nextTeam = (w.nextTeam || w.teams.length) + 1; });
+  if (d.teamDel !== undefined) return saveW((w) => w.teams.splice(+d.teamDel, 1));
+  if (el.id === "asmAdd") return saveW((w) => { const n = w.nextAssemblage || (w.assemblages.length + 1); w.assemblages.push({ id: "a" + n, n, name: "New assemblage" }); w.nextAssemblage = n + 1; });
+  if (d.asmDel !== undefined) return saveW((w) => w.assemblages.splice(+d.asmDel, 1));
+  if (el.id === "srcAdd") return saveW((w) => w.sources.push("New source"));
+  if (d.srcDel !== undefined) return saveW((w) => w.sources.splice(+d.srcDel, 1));
+  // elements
+  if (el.id === "formCancel") { form = newForm(); renderForm(); return; }
+  if (d.edit) {
+    const e = elById(d.edit); if (!e) return;
+    form = { editId: e.id, name: e.name, type: e.type, checked: {}, place: {} };
+    for (const aid of Object.keys(e.placements || {})) { form.checked[aid] = true; form.place[aid] = { ...blankPlace(), ...e.placements[aid] }; }
+    renderForm(); $("#fName")?.focus(); window.scrollTo({ top: 0, behavior: "smooth" }); return;
+  }
+  if (d.del) { pendingDelete = { kind: "el", id: d.del }; renderElList(); return; }
+  if (d.delNo !== undefined) { pendingDelete = null; tab === "map" ? refreshSide() : renderElList(); return; }
+  if (d.delYes) {
+    const id = d.delYes; pendingDelete = null;
+    store.deleteDocs([id], data.relations.filter((r) => r.from === id || r.to === id).map((r) => r.id));
+    if (form.editId === id) { form = newForm(); renderForm(); }
+    return;
+  }
+  // map
+  if (el.id === "relClear") { selection = { aid: null, from: null, to: null }; relDraft = { verb: "", disputed: false }; renderMap(); return; }
+  if (el.id === "relSave") { saveRelation(); return; }
+  if (d.relayout) { resetLayout(d.relayout); return; }
+  if (el.id === "relDelete") { relDraft.confirmDel = true; renderMap(); return; }
+  if (el.id === "relDelNo") { relDraft.confirmDel = false; renderMap(); return; }
+  if (el.id === "relDelYes") { const id = relDraft.editId; selection = { aid: null, from: null, to: null }; relDraft = { verb: "", disputed: false }; store.deleteDocs([], [id]); renderMap(); return; }
+  if (d.redit) { openRelation(d.redit); return; }
+  if (d.rdel) { pendingDelete = { kind: "rel", id: d.rdel }; refreshSide(); return; }
+  if (d.rdelYes) { pendingDelete = null; store.deleteDocs([], [d.rdelYes]); return; }
+  if (d.rdisp) { const r = data.relations.find((x) => x.id === d.rdisp); if (r) store.updateRelation(r.id, { disputed: !r.disputed }); return; }
+  if (d.vasm) { vAsm = d.vasm; ls.set("sm-vasm", vAsm); render(); return; }
+  // count
+  if (el.id === "dlEl") return exportElements();
+  if (el.id === "dlRel") return exportRelations();
 });
-document.getElementById("team").addEventListener("change", (e) => { ti = +e.target.value; render(); });
 
-document.addEventListener("change", (ev) => {
-  const t = ev.target, k = t.dataset.k, f = t.dataset.f; if (!k) return;
-  const { a, c, e } = locate(k);
-  if (f === "r") e.r = t.value;
-  else if (f === "p" || f === "lv") { const v = a.vul[c] || (a.vul[c] = { p: null, lv: null, why: "" }); v[f] = t.value === "" ? null : +t.value; }
-  else if (f === "src") { const n = parseInt(t.value, 10); a.src[c] = isNaN(n) || n < 0 ? 0 : n; }
-  else if (f === "mk") { const on = a.mk[c] || (a.mk[c] = []); const i = on.indexOf(t.value); if (t.checked && i < 0) on.push(t.value); if (!t.checked && i >= 0) on.splice(i, 1); }
-  else return;
-  save(); render();
+document.addEventListener("keydown", (ev) => {
+  const n = ev.target.closest?.("[data-node]");
+  if (n && (ev.key === "Enter" || ev.key === " ")) { ev.preventDefault(); clickNode(n.dataset.node, n.dataset.asm); }
+  const rl = ev.target.closest?.("[data-rel]");
+  if (rl && (ev.key === "Enter" || ev.key === " ")) { ev.preventDefault(); openRelation(rl.dataset.rel); }
+  if (ev.target.id === "relVerb" && ev.key === "Enter") { ev.preventDefault(); saveRelation(); }
+  if (ev.key === "Escape" && $("#relOverlay")) { selection = { aid: null, from: null, to: null }; relDraft = { verb: "", disputed: false }; renderMap(); }
 });
+
 document.addEventListener("input", (ev) => {
   const t = ev.target;
-  if (t.id === "iv") { S.iv = t.value; save(); return; }
-  const k = t.dataset.k, f = t.dataset.f; if (!k) return;
-  const { a, c, e } = locate(k);
-  if (f === "why") { e.why = t.value; save(); }
-  else if (f === "vwhy") { const v = a.vul[c] || (a.vul[c] = { p: null, lv: null, why: "" }); v.why = t.value; save(); }
+  if (t.id === "fName") form.name = t.value;
+  else if (t.dataset.p && t.dataset.k && t.tagName === "INPUT") { (form.place[t.dataset.p] ||= blankPlace())[t.dataset.k] = t.value; }
+  else if (t.id === "relVerb") { relDraft.verb = t.value; const b = $("#relSave"); if (b) b.disabled = !(selection.from && selection.to && t.value.trim()); }
 });
 
-document.getElementById("reset").addEventListener("click", () => {
-  if (!confirm("Reset all judgements to the example data?")) return;
-  S = JSON.parse(JSON.stringify(SEED)); save(); render();
+document.addEventListener("change", (ev) => {
+  const t = ev.target;
+  if (t.id === "teamSel") { team = t.value; ls.set("sm-team", team); selection = { aid: null, from: null, to: null }; pendingDelete = null; if (!form.editId) form = newForm(); render(); return; }
+  if (t.name === "fType") { form.type = t.value; return; }
+  if (t.dataset.chk) { form.checked[t.dataset.chk] = t.checked; renderForm(); return; }
+  if (t.dataset.p && t.tagName === "SELECT") { (form.place[t.dataset.p] ||= blankPlace())[t.dataset.k] = t.value; renderForm(); return; }
+  if (t.id === "relDisp") { relDraft.disputed = t.checked; return; }
+  if (t.dataset.vid) { saveVul(t.dataset.vid, t.dataset.vf, t.value); if (t.dataset.vf !== "why") renderVul(); return; }
+  if (t.dataset.pid) { onPlaceField(t); return; }
+  if (t.id === "ivText") { const v = t.value.trim(); const w = structuredClone(W()); w.interventions = { ...(w.interventions || {}), [team]: v }; data.workshop = w; store.setIntervention(team, v); return; }
+  if (t.id === "labelToggle") { showLabels = t.checked; ls.set("sm-labels", showLabels ? "1" : "0"); renderMap(); return; }
+  // setup fields save on change
+  if (t.id === "sitName") return saveW((w) => { w.situation = t.value.trim(); });
+  if (t.dataset.teamName !== undefined) return saveW((w) => { w.teams[+t.dataset.teamName].name = t.value.trim() || "Team"; });
+  if (t.dataset.asmName !== undefined) return saveW((w) => { w.assemblages[+t.dataset.asmName].name = t.value.trim() || "Assemblage"; });
+  if (t.dataset.srcName !== undefined) return saveW((w) => { w.sources[+t.dataset.srcName] = t.value.trim() || "Source"; });
 });
 
-document.getElementById("exp").addEventListener("click", () => {
-  const q = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-  const head = ["team", "assemblage", "code", "type", "element", "split_from", "result", "stopped_at", "reason", "degree", "of", "sources", "process_touched", "vulnerability", "vulnerability_reason", "conditions"];
-  const lines = [head.join(",")];
-  S.teams.forEach((tm) => ["s", "o"].forEach((k) => { const a = tm[k];
-    a.els.forEach((e) => { const isA = e.r === "A", d = deg(a, e.c), v = a.vul[e.c] || {};
-      lines.push([tm.name, asmLabel(k), e.c, e.t === "H" ? "human" : "nonhuman", e.n, e.split, e.r, stop(e.r), e.why,
-        isA ? d[0] : "", isA ? d[1] : "", isA ? (a.src[e.c] ?? 0) : "", isA && v.p != null ? PROCS[v.p] : "", isA && v.lv != null ? LEVELS[v.lv] : "", isA ? v.why : "", isA ? (a.mk[e.c] || []).join("; ") : ""].map(q).join(","));
-    }); }));
-  lines.push("", q("intervention") + "," + q(S.iv));
+document.addEventListener("submit", (ev) => { if (ev.target.id === "elForm") { ev.preventDefault(); submitForm(); } });
+
+/* dragging nodes */
+let drag = null;
+document.addEventListener("pointerdown", (ev) => {
+  const n = ev.target.closest?.("[data-node]");
+  if (!n) return;
+  const svg = n.ownerSVGElement;
+  drag = { id: n.dataset.node, aid: n.dataset.asm, svg, g: n, sx: ev.clientX, sy: ev.clientY, moved: false, dx: 0, dy: 0 };
+  n.setPointerCapture?.(ev.pointerId);
+});
+document.addEventListener("pointermove", (ev) => {
+  if (!drag) return;
+  const dist = Math.hypot(ev.clientX - drag.sx, ev.clientY - drag.sy);
+  if (!drag.moved && dist < 5) return;
+  drag.moved = true; dragging = true;
+  const m = drag.svg.getScreenCTM().inverse();
+  const p0 = new DOMPoint(drag.sx, drag.sy).matrixTransform(m), p1 = new DOMPoint(ev.clientX, ev.clientY).matrixTransform(m);
+  drag.dx = p1.x - p0.x; drag.dy = p1.y - p0.y;
+  drag.g.setAttribute("transform", `translate(${drag.dx} ${drag.dy})`);
+});
+document.addEventListener("pointerup", () => {
+  if (!drag) return;
+  const d = drag; drag = null;
+  if (!d.moved) { clickNode(d.id, d.aid); return; }
+  dragging = false;
+  const e = elById(d.id); if (!e) return;
+  const list = layoutDefaults(teamElements().filter((x) => x.placements?.[d.aid]).map((x) => ({ e: x, p: x.placements[d.aid] })));
+  const cur = list.find((x) => x.e.id === d.id);
+  const nx = Math.min(0.95, Math.max(0.05, cur.x + d.dx / VB_W)), ny = Math.min(0.93, Math.max(0.06, cur.y + d.dy / VB_H));
+  e.placements[d.aid].x = nx; e.placements[d.aid].y = ny; // optimistic
+  renderMap();
+  store.setPosition(d.id, d.aid, nx, ny);
+});
+
+/* ---------- start ---------- */
+(async function start() {
+  render();
+  $("#view").innerHTML = `<div class="empty">Loading…</div>`;
   try {
-    const blob = new Blob(["﻿" + lines.join("\n")], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob), link = document.createElement("a");
-    link.href = url; link.download = "judgement_record.csv"; document.body.appendChild(link); link.click(); link.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  } catch (e) { alert("Export is not available here."); }
-});
-
-const h = (location.hash || "").slice(1); if (TABS.includes(h)) tab = h;
-window.addEventListener("hashchange", () => { const v = location.hash.slice(1); if (TABS.includes(v)) { tab = v; render(); } });
-render();
+    store = DEMO ? makeDemoStore() : await makeFirebaseStore();
+  } catch (e) {
+    console.error(e);
+    showBanner("The database library did not load. Check the internet connection and reload. To try the page without a database, add <code>?demo</code> to the address.", true);
+    return;
+  }
+  if (DEMO) showBanner("Demo mode: example data, nothing is saved. Remove <code>?demo</code> from the address to use the real workshop.");
+  store.subscribe((snap) => {
+    data = snap;
+    if (dragging) return;
+    // keep typing intact on tab 1: only refresh the list
+    if (tab === "elements" && $("#elForm")) { renderChrome(); renderElList(); return; }
+    if (tab === "setup" && document.activeElement && document.activeElement.closest("#view") && document.activeElement.tagName === "INPUT") return;
+    if (tab === "map" && document.activeElement?.id === "relVerb") { refreshMapKeepVerb(); return; }
+    if (["vul", "filter", "record", "routes"].includes(tab) && document.activeElement && document.activeElement.closest("#view") && /TEXTAREA|SELECT|INPUT/.test(document.activeElement.tagName) && document.activeElement.type !== "checkbox") return;
+    render();
+  });
 })();
+function refreshMapKeepVerb() {
+  const v = $("#relVerb"); const pos = v ? v.selectionStart : null;
+  renderMap();
+  const nv = $("#relVerb"); if (nv) { nv.focus(); if (pos !== null) nv.setSelectionRange(pos, pos); }
+}
 </script>
 </body>
 </html>
