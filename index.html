@@ -375,6 +375,7 @@ async function makeFirebaseStore() {
 let data = { workshop: null, elements: [], relations: [] };
 let tab = ls.get("sm-tab", "elements");
 if (tab === "count") tab = "record";
+if (tab === "routes") tab = "matrix";
 if (tab === "setup" && !ADMIN) tab = "elements";
 let team = ls.get("sm-team", "t1");
 let dragging = false;
@@ -407,8 +408,7 @@ function renderChrome() {
   $("#tabs").innerHTML = (ADMIN ? stage("Setup", [["setup", "0 Setup"]]) : "")
     + stage("Revealing", [["elements", "1 Elements"], ["map", "2 Map"]])
     + stage("Filtering", [["filter", "3 Filter"]])
-    + stage("Situating", [["record", "4 Record"], ["vul", "5 Vulnerability"], ["matrix", "6 Matrix"]])
-    + stage("Routes", [["routes", "7 Routes"]]);
+    + stage("Situating", [["record", "4 Record"], ["vul", "5 Vulnerability"], ["matrix", "6 Matrix"]]);
   const teams = W().teams || [];
   if (!teams.find((t) => t.id === team) && teams[0]) { team = teams[0].id; }
   $("#teamSel").innerHTML = teams.map((t) => `<option value="${esc(t.id)}" ${t.id === team ? "selected" : ""}>${esc(t.name)}</option>`).join("");
@@ -422,7 +422,6 @@ function render() {
   else if (tab === "map") renderMap();
   else if (tab === "filter") renderFilter();
   else if (tab === "record") renderRecord();
-  else if (tab === "routes") renderRoutes();
   else if (tab === "vul") renderVul();
   else if (tab === "matrix") renderMatrix();
   else renderRecord();
@@ -766,7 +765,7 @@ function download(name, text) {
 }
 function exportElements() {
   const teamName = (id) => (W().teams || []).find((t) => t.id === id)?.name || id;
-  const rows = [["workshop", "team", "element_id", "placement_code", "element_code", "type", "name", "assemblage_code", "assemblage_name", "voice", "spoken_by", "source", "where", "degree_in_assemblage", "elements_in_assemblage", "degree_centrality_normalized", "filter_result", "stopped_at", "filter_reason", "sources", "problem_situation", "integrity_dimension", "process_touched", "vulnerability", "vulnerability_reason", "conditions_of_makeability", "iteration_log", "mechanism_note"]];
+  const rows = [["workshop", "team", "element_id", "placement_code", "element_code", "type", "name", "assemblage_code", "assemblage_name", "voice", "spoken_by", "source", "where", "degree_in_assemblage", "elements_in_assemblage", "degree_centrality_normalized", "filter_result", "stopped_at", "filter_reason", "sources", "problem_situation", "integrity_dimension", "process_touched", "vulnerability", "vulnerability_reason"]];
   const saveTeam = team;
   for (const t of (W().teams || [])) {
     team = t.id; const deg = degrees(); const tEls = teamElements(); const nOn = (aid) => tEls.filter((e) => e.placements?.[aid]).length;
@@ -774,8 +773,7 @@ function exportElements() {
       const p = e.placements[aid];
       rows.push([WID, teamName(t.id), e.id, placeCode(e, aid), elCode(e), e.type === "H" ? "human" : "nonhuman", e.name, asmCode(aid), asmById(aid)?.name, p.voice, p.spokenBy, sourceText(p), p.where, aid === NONE ? "" : (deg[e.id + "|" + aid] || 0), aid === NONE ? "" : nOn(aid), aid === NONE ? "" : normDeg(deg[e.id + "|" + aid] || 0, nOn(aid)).toFixed(3),
         aid === NONE ? "" : resOf(e, aid), aid === NONE ? "" : stopAt(resOf(e, aid)), p.fwhy || "", resOf(e, aid) === "A" ? (p.src ?? 0) : "",
-        e.type === "N" && aid !== NONE ? (W().interventions?.[t.id] || "") : "", p.vul?.dim || "", typeof p.vul?.p === "number" ? PROCS[p.vul.p] : "", typeof p.vul?.lv === "number" ? LEVELS[p.vul.lv] : "", p.vul?.why || "",
-        (p.mk || []).join("; "), p.log || "", p.note || ""]);
+        e.type === "N" && aid !== NONE ? (W().interventions?.[t.id] || "") : "", p.vul?.dim || "", typeof p.vul?.p === "number" ? PROCS[p.vul.p] : "", typeof p.vul?.lv === "number" ? LEVELS[p.vul.lv] : "", p.vul?.why || ""]);
     }
   }
   team = saveTeam;
@@ -820,6 +818,7 @@ const PROCS = ["Producing its components", "Recovering its state"];
 const RESULTS = ["A", "B", "C", "D resource", "D pressure", "D condition"];
 const CONDS = ["co-presence", "observable response", "temporal rhythm", "datafiability", "care dependence", "institutional legibility"];
 let vAsm = ls.get("sm-vasm", "a1");
+let split = ls.get("sm-split2", "map");
 const resOf = (e, aid) => e.type === "H" ? "E" : (e.placements?.[aid]?.fr || "");
 const stopAt = (r) => !r ? "" : r === "E" ? "E yes" : r === "A" ? "E no · A yes" : r === "B" ? "E no · A no · B yes" : r === "C" ? "E no · A, B no · C yes" : "E no · A, B, C no";
 const rpill = (r) => r ? `<span class="pill p${r[0]}">${esc(r)}</span>` : `<span class="pill pQ">?</span>`;
@@ -924,39 +923,43 @@ function saveVul(eid, field, value) {
 /* tab 7: matrix (A only) */
 function renderMatrix(target = $("#view")) {
   if (noAsm()) return;
-  const all = As(vAsm), cs = medianC(all);
+  const all = As(vAsm);
+  const SPLITS = { map: "Median of map (all elements)", a: "Median of A", half: "0.5" };
+  if (!SPLITS[split]) split = "map";
+  const cs = split === "map" ? medianC(withDeg(vAsm)) : split === "a" ? medianC(all) : 0.5;
+  const splitLab = split === "map" ? "median of map" : split === "a" ? "median of A" : "0.5";
   const W2 = 600, H = 450, L = 70, T = 20, PW = W2 - L - 20, PH = H - T - 58;
   // vertical = centrality → scope of participation; horizontal = vulnerability → priority
   const X = (lv) => L + (lv + 0.5) / 4 * PW, Y = (c) => T + PH - c * PH;
   let g = `<rect x="${L}" y="${T}" width="${PW}" height="${PH}" fill="#F8F7F3" stroke="#D6D3CA"/>`;
   const sx = L + PW / 2, sy = Y(cs);
   g += `<line x1="${sx}" y1="${T}" x2="${sx}" y2="${T + PH}" stroke="#66645D" stroke-dasharray="5 4"/><line x1="${L}" y1="${sy}" x2="${L + PW}" y2="${sy}" stroke="#66645D" stroke-dasharray="5 4"/>`;
-  const ql = (x, y, t, an) => `<text x="${x}" y="${y}" text-anchor="${an}" font-size="10" font-weight="700" fill="#66645D">${t}</text>`;
-  g += ql(L + 8, T + 16, "LOWER PRIORITY · WHOLE PROCESS", "start") + ql(L + PW - 8, T + 16, "PRIORITY · WHOLE PROCESS", "end")
-     + ql(L + 8, T + PH - 8, "LOWER PRIORITY · SPECIFIC DECISIONS", "start") + ql(L + PW - 8, T + PH - 8, "PRIORITY · SPECIFIC DECISIONS", "end");
+  const ql = (x, y, t, an) => `<text x="${x}" y="${y}" text-anchor="${an}" font-size="11" font-weight="700" letter-spacing=".06em" fill="#66645D">${t}</text>`;
+  g += ql(L + 8, T + 16, "STRUCTURAL", "start") + ql(L + PW - 8, T + 16, "CRITICAL", "end") + ql(L + 8, T + PH - 8, "LATENT", "start") + ql(L + PW - 8, T + PH - 8, "VULNERABLE", "end");
   LEVELS.forEach((l, i) => g += `<text x="${X(i)}" y="${T + PH + 18}" text-anchor="middle" font-size="11" fill="#66645D">${l}</text>`);
   [0, .25, .5, .75, 1].forEach((t) => g += `<text x="${L - 8}" y="${Y(t) + 4}" text-anchor="end" font-size="11" fill="#66645D">${t.toFixed(2)}</text>`);
-  g += `<text x="${L + PW / 2}" y="${H - 10}" text-anchor="middle" font-size="12" fill="#1F1F1C">Vulnerability → priority</text>`;
-  g += `<text transform="translate(16 ${T + PH / 2}) rotate(-90)" text-anchor="middle" font-size="12" fill="#1F1F1C">Centrality → scope of participation</text>`;
-  g += `<text x="${L + 4}" y="${sy - 4}" font-size="10" fill="#66645D">median ${fmt(cs)}</text>`;
+  g += `<text x="${L + PW / 2}" y="${H - 10}" text-anchor="middle" font-size="12" fill="#1F1F1C">Vulnerability →</text>`;
+  g += `<text transform="translate(16 ${T + PH / 2}) rotate(-90)" text-anchor="middle" font-size="12" fill="#1F1F1C">Centrality (normalized degree) →</text>`;
+  g += `<text x="${L + 4}" y="${sy - 4}" font-size="10" fill="#66645D">${splitLab} ${fmt(cs)}</text>`;
   const seen = {}, unr = [], rows = [];
   all.forEach((x) => {
     const v = x.p.vul;
-    if (typeof v?.lv !== "number") { unr.push(x); rows.push(`<tr><td class="code">${esc(placeCode(x.e, vAsm))}</td><td>${esc(x.e.name)}</td><td class="num">${fmt(x.c)}</td><td class="muted">not rated</td><td></td></tr>`); return; }
+    if (typeof v?.lv !== "number") { unr.push(x); rows.push(`<tr><td class="code">${esc(placeCode(x.e, vAsm))}</td><td>${esc(x.e.name)}</td><td class="num" style="white-space:nowrap">${x.d}/${x.n - 1} · ${fmt(x.c)}</td><td class="muted">not rated</td><td></td></tr>`); return; }
     const key = x.c.toFixed(3) + "|" + v.lv, j = seen[key] = (seen[key] || 0) + 1;
     const px = X(v.lv) + (j - 1) * 16, py = Y(x.c) + (j - 1) * 14, h = 9;
     g += `<path d="M${px} ${py - h} L${px + h * 1.1} ${py + h * .8} L${px - h * 1.1} ${py + h * .8} Z" fill="#FFF" stroke="${COL.N.stroke}" stroke-width="2.5" stroke-linejoin="round"/><text x="${px > L + PW * 0.65 ? px - 14 : px + 14}" text-anchor="${px > L + PW * 0.65 ? "end" : "start"}" y="${py + 4}" font-size="12" font-weight="600" fill="#1F1F1C" paint-order="stroke" stroke="#F8F7F3" stroke-width="4" stroke-linejoin="round">${esc(elCode(x.e) + " " + x.e.name)}</text>`;
-    const pri = v.lv >= 2, whole = x.c >= cs;
-    rows.push(`<tr><td class="code">${esc(placeCode(x.e, vAsm))}</td><td>${esc(x.e.name)}</td><td class="num">${fmt(x.c)}</td><td>${LEVELS[v.lv]}</td><td><span class="pill ${pri ? "crit" : ""}" style="white-space:normal">${pri ? "Priority" : "Lower priority"} · ${whole ? "whole process" : "specific decisions"}</span></td></tr>`);
+    const hiC = x.c >= cs, hiV = v.lv >= 2, q = hiC && hiV ? ["Critical", "crit"] : hiC ? ["Structural", "struct"] : hiV ? ["Vulnerable", "vul"] : ["Latent", ""];
+    rows.push(`<tr><td class="code">${esc(placeCode(x.e, vAsm))}</td><td>${esc(x.e.name)}</td><td class="num" style="white-space:nowrap">${x.d}/${x.n - 1} · ${fmt(x.c)}</td><td>${LEVELS[v.lv]}</td><td><span class="pill ${q[1]}">${q[0]}</span>${x.c < cs && (x.p.src ?? 0) <= 1 ? ` <b class="warn" title="Low degree from few sources: further inquiry">?</b>` : ""}</td></tr>`);
   });
   target.innerHTML = `<div class="mgrid"><div class="card">${head()}
       <div class="ctl" style="margin-bottom:14px"><span class="lab">Problem situation</span><div class="ivshow">${ivOf(team) ? esc(ivOf(team)) : `<span class="muted">Not written yet. Write it in tab 3.</span>`}</div></div>
-      ${all.length ? `<p class="muted small" style="margin:0 0 8px">Only A. No one drops off the matrix. Split line: median centrality of A${all.length === 1 ? "; with one A the split means little" : ""}.</p>
+      ${all.length ? `<div class="controls"><div class="ctl"><label for="splitSel">Centrality split</label><select id="splitSel">${Object.entries(SPLITS).map(([k, l]) => `<option value="${k}" ${k === split ? "selected" : ""}>${l}</option>`).join("")}</select></div>
+        <p class="muted small" style="margin:0;max-width:420px">Only A. No one drops off the matrix. Quadrants are positions, not a ranking.${split === "a" && all.length < 3 ? " With fewer than three A, this split means little." : ""}</p></div>
       <div class="plot"><svg viewBox="0 0 ${W2} ${H}" role="img" aria-label="Centrality–vulnerability matrix">${g}</svg></div>
       ${unr.length ? `<div class="unrated"><span class="muted small">Not rated yet · rate in tab 5</span>${unr.map((x) => `<span class="chip">${shapeIcon("N", x.p.voice, 13)}${esc(elCode(x.e) + " " + x.e.name)}</span>`).join("")}</div>` : ""}`
       : `<div class="empty">No A in this map yet. Filter in tab 3.</div>`}</div>
-    <div class="card"><h2>Stake-holding participants (A)</h2><p class="muted small" style="margin:-6px 0 10px">Centrality from tab 4, vulnerability from tab 5.</p>
-      <div class="tablewrap"><table><thead><tr><th>No.</th><th>Participant</th><th class="num">Centrality</th><th>Vulnerability</th><th>Reading</th></tr></thead><tbody>${rows.join("") || `<tr><td colspan="5" class="muted">None</td></tr>`}</tbody></table></div></div></div>`;
+    <div class="card"><h2>Stake-holding participants (A)</h2><p class="muted small" style="margin:-6px 0 10px">Degree from tab 4, vulnerability from tab 5. ? = low degree from one source or none: check before reading it as peripheral.</p>
+      <div class="tablewrap"><table><thead><tr><th>No.</th><th>Participant</th><th class="num">Degree</th><th>Vulnerability</th><th>Quadrant</th></tr></thead><tbody>${rows.join("") || `<tr><td colspan="5" class="muted">None</td></tr>`}</tbody></table></div></div></div>`;
 }
 
 /* tab 8: routes */
@@ -1067,6 +1070,7 @@ document.addEventListener("change", (ev) => {
   if (t.dataset.chk) { form.checked[t.dataset.chk] = t.checked; renderForm(); return; }
   if (t.dataset.p && t.tagName === "SELECT") { (form.place[t.dataset.p] ||= blankPlace())[t.dataset.k] = t.value; renderForm(); return; }
   if (t.id === "relDisp") { relDraft.disputed = t.checked; return; }
+  if (t.id === "splitSel") { split = t.value; ls.set("sm-split2", split); renderMatrix(); return; }
   if (t.dataset.vid) { saveVul(t.dataset.vid, t.dataset.vf, t.value); if (t.dataset.vf !== "why") renderVul(); return; }
   if (t.dataset.pid) { onPlaceField(t); return; }
   if (t.id === "ivText") { const v = t.value.trim(); const w = structuredClone(W()); w.interventions = { ...(w.interventions || {}), [team]: v }; data.workshop = w; store.setIntervention(team, v); return; }
