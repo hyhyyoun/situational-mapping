@@ -245,26 +245,77 @@ function makeDemoStore() {
   const emit = () => listeners.forEach((f) => f(snapshot()));
   const snapshot = () => ({ workshop: s.workshop, elements: Object.entries(s.elements).map(([id, d]) => ({ id, ...d })), relations: Object.entries(s.relations).map(([id, d]) => ({ id, ...d })) });
   const P = (o) => Promise.resolve(o);
-  // example data for the demo only
+  // example data for the demo only: xAI Colossus, Memphis (simplified from news reports)
+  s.workshop.situation = "Example: xAI Colossus data centre, Memphis";
+  const sp = (o = {}) => ({ voice: "speaks", source: "News article", ...o });
+  const sil = (o = {}) => ({ voice: "silent", source: "News article", ...o });
+  const by = (who, o = {}) => ({ voice: "spoken", spokenBy: who, source: "News article", ...o });
   const ex = [
-    ["H", 1, "Residents’ committee", { a2: { voice: "speaks", source: "Interview", where: "Interview 1" } }],
-    ["H", 2, "Data centre operator", { a1: { voice: "speaks", source: "News article", where: "Local news, 3 Oct" } }],
-    ["H", 3, "Future generations", { a2: { voice: "silent", source: "Team knowledge" } }],
-    ["N", 1, "Water", { a1: { voice: "silent", source: "Policy document", where: "Siting plan p.12" }, a2: { voice: "spoken", spokenBy: "Environmental group", source: "Interview", where: "Interview 3" } }],
-    ["N", 2, "Transmission tower", { a2: { voice: "spoken", spokenBy: "Residents", source: "Field observation" } }],
-    ["N", 3, "River ecosystem", { a0: { voice: "silent", source: "Team knowledge" } }]
+    ["H", 1, "xAI (operator)", { a1: sp({ where: "Company statements" }), a2: sp() }],
+    ["H", 2, "Greater Memphis Chamber", { a1: sp({ where: "Chamber press release" }) }],
+    ["H", 3, "MLGW (water and power utility)", { a1: sp({ source: "Policy document" }) }],
+    ["H", 4, "City of Memphis", { a1: sp() }],
+    ["H", 5, "TVA", { a1: sp() }],
+    ["H", 6, "Shelby County Health Department", { a1: sp({ source: "Policy document", where: "Air permit, July 2025" }), a2: sp({ source: "Policy document" }) }],
+    ["H", 7, "South Memphis residents (Boxtown)", { a2: sp({ source: "Interview", where: "Public hearing" }) }],
+    ["H", 8, "Protect Our Aquifer", { a2: sp({ where: "Daily Memphian" }) }],
+    ["H", 9, "Environmental law groups", { a2: sp({ where: "Notice of intent to sue" }) }],
+    ["H", 10, "Future generations", { a2: sil({ source: "Team knowledge" }) }],
+    ["N", 1, "Memphis Sand Aquifer", {
+      a1: by("MLGW (water and power utility)", { fr: "A", fwhy: "Groundwater system that recharges itself. Cooling draws on it.", src: 3, mk: ["datafiability", "institutional legibility", "temporal rhythm"],
+        vul: { dim: "Biological/ecological flourishing", p: 1, lv: 3, why: "About 1.2 million gallons a day pumped for cooling while the recycling plant is paused; recharge is slower than pumping (Protect Our Aquifer)." } }),
+      a2: by("Protect Our Aquifer", { fr: "A", fwhy: "Same aquifer. Here it is what the city drinks.", src: 4, mk: ["datafiability", "institutional legibility"],
+        vul: { dim: "Biological/ecological flourishing", p: 1, lv: 3, why: "Drinking-water source; clay layer is thin in places, so pumping can draw in pollution (news reports)." } }) }],
+    ["N", 2, "GPU servers", { a1: sil({ source: "Team knowledge", fr: "D pressure", fwhy: "Produce the heat load the cooling removes." }) }],
+    ["N", 3, "Cooling system", { a1: by("xAI", { fr: "B", fwhy: "What the design works on: switch its water source.", log: "Runs on aquifer water now. Switch to recycled water waits for the plant." }) }],
+    ["N", 4, "Water recycling plant", {
+      a1: by("xAI", { fr: "B", fwhy: "Built with the design. Ground broken Oct 2025.", log: "Oct 2025 ground broken. 2026 construction paused. Restart promised for Q1 2027." }),
+      a2: by("Protect Our Aquifer", { fr: "B", fwhy: "Paused. Opponents push for it to be finished.", log: "Paused while Colossus 2 is prioritised." }) }],
+    ["N", 5, "Treated wastewater", { a1: sil({ fr: "D resource", fwhy: "Used as cooling water once purified." }) }],
+    ["N", 6, "Gas turbines", {
+      a1: by("xAI", { fr: "D resource", fwhy: "Used for on-site power." }),
+      a2: by("Environmental law groups", { fr: "D pressure", fwhy: "Act on air and residents." }) }],
+    ["N", 7, "Mississippi River", {
+      a1: sil({ source: "Team knowledge", fr: "A", fwhy: "Receives the treatment plant’s discharge. Maintains itself.", src: 1, mk: ["co-presence", "datafiability"],
+        vul: { dim: "Biological/ecological flourishing", p: 1, lv: 1, why: "Recycling diverts a small share of discharge; little change to flow." } }),
+      a2: sil({ source: "Team knowledge", fr: "A", fwhy: "Linked to the aquifer.", src: 0, mk: ["co-presence"] }) }],
+    ["N", 8, "Treatment plant microbes", { a1: sil({ source: "Team knowledge", fr: "A", fwhy: "Living community that cleans wastewater at T.E. Maxson. Produces itself.", src: 0, mk: ["care dependence", "observable response", "datafiability"],
+        vul: { dim: "Biological/ecological flourishing", p: 0, lv: 0, why: "Recycling takes water after treatment; the microbial stage is not touched." } }) }],
+    ["N", 9, "Power grid", { a1: by("TVA", { fr: "D resource", fwhy: "Used." }) }],
+    ["N", 10, "Tax agreement", { a1: by("City of Memphis", { source: "Policy document", fr: "D condition", fwhy: "Imposed by city and county." }) }],
+    ["N", 11, "Air permit", {
+      a1: by("Shelby County Health Department", { source: "Policy document", fr: "D condition", fwhy: "Imposed on the turbines." }),
+      a2: by("Shelby County Health Department", { source: "Policy document", fr: "C", fwhy: "Makes turbine emissions present to regulators.", note: "Counts permitted turbines. Leaves out unpermitted ones and what residents breathe in total." }) }],
+    ["N", 12, "Monitoring wells", { a1: by("MLGW (water and power utility)", { fr: "C", fwhy: "Make the aquifer’s level present.", note: "Shows water level. Leaves out quality and who draws how much." }) }],
+    ["N", 13, "Air pollution (NOx)", { a2: by("South Memphis residents (Boxtown)", { fr: "D pressure", fwhy: "Acts on residents and the park." }) }],
+    ["N", 14, "Turbine noise", { a2: by("South Memphis residents (Boxtown)", { fr: "D pressure", fwhy: "Acts on residents." }) }],
+    ["N", 15, "Thermal camera images", { a2: by("Environmental law groups", { fr: "C", fwhy: "Make running turbines present.", note: "Show which turbines run. Leave out what they emit." }) }],
+    ["N", 16, "T.O. Fuller park woodland", { a2: sil({ source: "Field observation", fr: "A", fwhy: "Woodland next to Boxtown. Maintains itself.", src: 1, mk: ["co-presence", "observable response", "care dependence"],
+        vul: { dim: "Biological/ecological flourishing", p: 0, lv: 2, why: "Turbine emissions settle on the park; nobody monitors it." } }) }],
+    ["N", 17, "AI chatbot users’ demand", { a0: sil({ source: "Team knowledge" }) }]
   ];
   const ids = {};
   ex.forEach(([type, no, name, placements], i) => { const id = "e" + i; ids[type + no] = id; s.elements[id] = { team: "t1", type, no, name, placements, createdAt: i }; });
-  s.relations.r1 = { team: "t1", assemblage: "a2", from: ids.H1, to: ids.N2, verb: "suffers noise from", disputed: false, no: 1, createdAt: 1 };
-  s.relations.r2 = { team: "t1", assemblage: "a2", from: ids.N2, to: ids.N1, verb: "runs over", disputed: false, no: 2, createdAt: 2 };
-  s.relations.r3 = { team: "t1", assemblage: "a1", from: ids.H2, to: ids.N1, verb: "cools servers with", disputed: false, no: 3, createdAt: 3 };
-  s.workshop.interventions = { t1: "Build a water-recycling cooling plant so the data centre draws less from the local supply." };
-  s.elements[ids.N1].placements.a2.vul = { dim: "Biological/ecological flourishing", lv: 3, why: "Discharge returns to the river system." };
-  s.elements[ids.N2].placements.a2.vul = { dim: "Material durability and care", lv: 0, why: "" };
-  Object.assign(s.elements[ids.N1].placements.a1, { fr: "D resource", fwhy: "Used for cooling." });
-  Object.assign(s.elements[ids.N1].placements.a2, { fr: "A", fwhy: "The river system maintains itself; discharge unsettles it.", src: 1, mk: ["co-presence", "institutional legibility"] });
-  Object.assign(s.elements[ids.N2].placements.a2, { fr: "D pressure", fwhy: "Acts on residents." });
+  const R = {
+    a1: [["H1","N2","runs"],["H1","N4","builds"],["H1","N6","installs"],["H1","N10","signs"],["H2","H1","recruits"],["H4","N10","grants"],["H4","N4","partners on"],
+         ["H3","N1","pumps from"],["H3","N3","supplies water to"],["H5","N9","operates"],["N9","N2","powers"],["N6","N2","powers"],["N2","N3","heats"],["N3","N1","draws from"],
+         ["N4","N5","purifies"],["N8","N5","clean"],["N5","N7","discharged to"],["N4","N3","would supply"],["N12","N1","measure"],["H3","N12","reads"],
+         ["H6","N11","issues"],["N11","N6","limits"],["H6","H1","permits"],
+         ["N4","N1","would relieve"],["H4","N1","draws drinking water from"],["H5","N1","cools its plant with"],["H4","N7","discharges to"],["N1","N7","feeds"],["H4","N8","operates"]],
+    a2: [["H7","N13","breathe"],["H7","N14","hear"],["N6","N13","emit"],["N6","N14","make"],["H1","N6","runs"],["H9","H1","sue"],["H9","N15","cite"],["N15","N6","reveal"],
+         ["H8","N1","speaks for"],["H8","N4","pushes for"],["N4","N1","would relieve"],["H10","N1","will drink from"],["N13","N16","settles on"],["H7","N16","walk in"],
+         ["H6","N11","issues"],["N11","N6","counts"],["H9","N11","challenge"],["N1","N7","feeds"],["H10","N16","inherit"],["H7","N1","drink from"]]
+  };
+  const POS = {
+    a1: { H2: [.15,.08], H1: [.45,.08], H6: [.82,.08], N10: [.2,.26], N6: [.42,.3], N11: [.66,.2], H3: [.62,.4], H5: [.9,.36], H4: [.1,.46],
+          N2: [.44,.52], N9: [.78,.56], N3: [.4,.72], N4: [.18,.66], N5: [.2,.84], N8: [.4,.94], N7: [.12,.96], N1: [.68,.86], N12: [.9,.74] },
+    a2: { H9: [.15,.08], H1: [.45,.08], H6: [.8,.08], N15: [.14,.32], N6: [.44,.32], N11: [.76,.3], N13: [.28,.56], N14: [.6,.52], H8: [.9,.56],
+          N4: [.86,.76], H7: [.48,.72], N16: [.18,.84], N1: [.66,.9], H10: [.92,.94], N7: [.42,.95] }
+  };
+  for (const [aid, m] of Object.entries(POS)) for (const [k, [x, y]] of Object.entries(m)) { const p = s.elements[ids[k]].placements[aid]; p.x = x; p.y = y; }
+  let rn = 0;
+  for (const [aid, list] of Object.entries(R)) list.forEach(([f, t, verb]) => { rn++; s.relations["r" + rn] = { team: "t1", assemblage: aid, from: ids[f], to: ids[t], verb, disputed: verb === "would relieve", no: rn, createdAt: rn }; });
+  s.workshop.interventions = { t1: "Colossus cools its servers with groundwater from the Memphis Sand Aquifer and runs on gas turbines, while the promised water recycling plant is paused." };
   return {
     subscribe(cb) { listeners.push(cb); setTimeout(() => cb(snapshot()), 0); },
     saveWorkshop(w) { s.workshop = structuredClone(w); emit(); return P(); },
@@ -323,6 +374,7 @@ async function makeFirebaseStore() {
 /* ---------- app state ---------- */
 let data = { workshop: null, elements: [], relations: [] };
 let tab = ls.get("sm-tab", "elements");
+if (tab === "count") tab = "record";
 if (tab === "setup" && !ADMIN) tab = "elements";
 let team = ls.get("sm-team", "t1");
 let dragging = false;
@@ -353,10 +405,10 @@ function renderChrome() {
   const b = ([k, l]) => `<button type="button" data-tab="${k}" ${k === tab ? 'aria-current="page"' : ""}>${l}</button>`;
   const stage = (label, list) => `<div class="stage"><span class="sl">${label}</span><div class="btns">${list.map(b).join("")}</div></div>`;
   $("#tabs").innerHTML = (ADMIN ? stage("Setup", [["setup", "0 Setup"]]) : "")
-    + stage("Revealing", [["elements", "1 Elements"], ["map", "2 Map"], ["count", "3 Centrality"]])
-    + stage("Filtering", [["filter", "4 Filter"]])
-    + stage("Situating", [["record", "5 Record"], ["vul", "6 Vulnerability"], ["matrix", "7 Matrix"]])
-    + stage("Routes", [["routes", "8 Routes"]]);
+    + stage("Revealing", [["elements", "1 Elements"], ["map", "2 Map"]])
+    + stage("Filtering", [["filter", "3 Filter"]])
+    + stage("Situating", [["record", "4 Record"], ["vul", "5 Vulnerability"], ["matrix", "6 Matrix"]])
+    + stage("Routes", [["routes", "7 Routes"]]);
   const teams = W().teams || [];
   if (!teams.find((t) => t.id === team) && teams[0]) { team = teams[0].id; }
   $("#teamSel").innerHTML = teams.map((t) => `<option value="${esc(t.id)}" ${t.id === team ? "selected" : ""}>${esc(t.name)}</option>`).join("");
@@ -373,7 +425,7 @@ function render() {
   else if (tab === "routes") renderRoutes();
   else if (tab === "vul") renderVul();
   else if (tab === "matrix") renderMatrix();
-  else renderCount();
+  else renderRecord();
 }
 
 /* shapes */
@@ -740,8 +792,8 @@ function exportRelations() {
 }
 
 /* ----- tab 3: centrality maps ----- */
-function centralityMaps(els, deg) {
-  return assemblages().map((a) => {
+function centralityMaps(els, deg, only) {
+  return assemblages().filter((a) => !only || a.id === only).map((a) => {
     const onMap = els.filter((e) => e.placements?.[a.id]);
     const n = onMap.length;
     const nodes = layoutDefaults(onMap.map((e) => ({ e, p: e.placements[a.id] })));
@@ -801,8 +853,11 @@ function renderFilter() {
   const rows = list.map((x) => `<tr><td class="code">${esc(placeCode(x.e, vAsm))}</td><td>${shapeIcon(x.e.type, x.p.voice)}</td><td>${esc(x.e.name)}</td>
     <td>${x.e.type === "H" ? rpill("E") : `<select ${pAttr(x.e, "fr")} aria-label="Result, ${esc(x.e.name)}"><option value="">Not yet…</option>${RESULTS.map((r) => `<option ${r === x.r ? "selected" : ""}>${r}</option>`).join("")}</select>`}</td>
     <td class="code small">${stopAt(x.r)}</td>
-    <td style="min-width:240px">${x.e.type === "H" ? `<span class="muted small">Human stakeholder. Stays as a column.</span>` : `<textarea ${pAttr(x.e, "fwhy")} rows="1" placeholder="Reason" aria-label="Reason, ${esc(x.e.name)}">${esc(x.p.fwhy || "")}</textarea>`}</td></tr>`).join("");
+    <td style="min-width:240px">${x.e.type === "H" ? `<span class="muted small">Human stakeholder. Stays as a column.</span>` : `<textarea ${pAttr(x.e, "fwhy")} rows="2" placeholder="Reason" aria-label="Reason, ${esc(x.e.name)}">${esc(x.p.fwhy || "")}</textarea>`}</td></tr>`).join("");
   $("#view").innerHTML = `<div class="card">${head()}
+    <div class="ctl" style="max-width:760px;margin-bottom:16px"><label for="ivText">Problem situation</label>
+      <textarea id="ivText" rows="2" placeholder="Describe the problem situation in your own words">${esc(ivOf(team))}</textarea>
+      <span class="muted small">This team’s problem situation. The filter, and later the vulnerability rating, are judged in this situation.</span></div>
     <p class="muted small" style="margin:0 0 12px;max-width:900px"><b>E</b> Is it human? <b>A</b> Does it produce and maintain itself? <b>B</b> Is it what the design works on directly? A and B are asked independently. <b>C</b> If neither: does it make other entities present? <b>D</b> Otherwise: a resource used, a pressure exerted or a condition imposed. Judged by its relation to this design, not by kind. If one element plays two parts, split it in tab 1.</p>
     <div class="tablewrap"><table class="ftable"><thead><tr><th>No.</th><th></th><th>Element</th><th>Result</th><th>Stopped at</th><th>Reason</th></tr></thead>
     <tbody>${rows || `<tr><td colspan="6" class="muted">No elements in the ${esc(a.name)} map yet.</td></tr>`}</tbody></table></div></div>`;
@@ -812,7 +867,9 @@ function renderFilter() {
 function renderRecord() {
   if (noAsm()) return;
   const all = withDeg(vAsm), A = all.filter((x) => x.r === "A"), m = medianC(A);
-  if (!A.length) { $("#view").innerHTML = `<div class="card">${head()}<p class="warn">No stake-holding participant (A) in this map yet. Filter in tab 4. If none is A after filtering, check the boundary: what lies outside the theme and is affected by it?</p></div>`; return; }
+  const mapHtml = `<div class="cmaps" style="grid-template-columns:minmax(0,1fr);max-width:640px">${centralityMaps(teamElements(), degrees(), vAsm)}</div>`;
+  const dl = `<div class="card" style="margin-top:20px"><h2>Download (all teams)</h2><div style="display:flex;flex-wrap:wrap;gap:8px"><button type="button" class="btn" id="dlEl">Elements and judgements (CSV)</button><button type="button" class="btn" id="dlRel">Relations (CSV)</button></div></div>`;
+  if (!A.length) { $("#view").innerHTML = `<div class="card">${head()}${mapHtml}<p class="warn">No stake-holding participant (A) in this map yet. Filter in tab 3. If none is A after filtering, check the boundary: what lies outside the theme and is affected by it?</p></div>${dl}`; return; }
   const cols = all.sort((x, y) => (x.e.type === y.e.type ? x.e.no - y.e.no : x.e.type === "H" ? -1 : 1));
   let h = `<div class="tablewrap"><table class="rec" style="table-layout:fixed;min-width:${180 + cols.length * 36 + 150}px"><thead>
     <tr><th style="width:180px;border-bottom:0"></th>${cols.map((c) => `<th style="width:36px;border-bottom:0"><div class="vh" title="${esc(c.e.name)}">${esc(elCode(c.e) + " " + c.e.name)}</div></th>`).join("")}<th class="num" style="width:76px;border-bottom:0">Degree</th><th class="num" style="width:74px;border-bottom:0">Sources</th></tr>
@@ -828,9 +885,9 @@ function renderRecord() {
     <td class="num"><input type="text" inputmode="numeric" ${pAttr(x.e, "src")} value="${src}" style="width:52px;text-align:right" aria-label="Sources, ${esc(x.e.name)}"></td></tr>`;
     if (low && src <= 1) h += `<tr><td colspan="${cols.length + 3}" class="warn" style="padding:4px 6px 10px">${esc(x.e.name)}: low degree from ${src} source${src === 1 ? "" : "s"}. Further inquiry before reading it as peripheral.</td></tr>`;
   });
-  $("#view").innerHTML = `<div class="card">${head()}
+  $("#view").innerHTML = `<div class="card">${head()}${mapHtml}
     <p class="muted small" style="margin:0 0 12px">Rows: A only. Columns: every element on this map, humans and background included. Filled cell: a line on the map (striped: team disagrees). Sources: how many sources evidence this participant’s relations.</p>
-    ${h}</tbody></table></div><p class="muted small" style="margin:10px 0 0">Degree = lines ÷ (elements in this map − 1). Median of A: ${fmt(m)}.</p></div>`;
+    ${h}</tbody></table></div><p class="muted small" style="margin:10px 0 0">Degree = lines ÷ (elements in this map − 1). Median of A: ${fmt(m)}.</p></div>${dl}`;
 }
 
 /* tab 6: vulnerability (A only) */
@@ -849,12 +906,11 @@ function renderVul() {
       <textarea data-vid="${x.e.id}" data-vf="why" rows="2" placeholder="Reason and source" aria-label="Reason, ${esc(x.e.name)}">${esc(v.why || "")}</textarea></div>`;
   }).join("");
   $("#view").innerHTML = `<div class="card">${head(`<span class="muted small">Rated ${done} / ${list.length}</span>`)}
-    <div class="ctl" style="max-width:760px;margin-bottom:16px"><label for="ivText">Problem situation</label>
-      <textarea id="ivText" rows="2" placeholder="Describe the problem situation in your own words">${esc(ivOf(team))}</textarea>
-      <span class="muted small">This team’s problem situation. Vulnerability below is rated in this situation.</span></div>
+    <div class="ctl" style="max-width:760px;margin-bottom:16px"><span class="lab">Problem situation</span><div class="ivshow">${ivOf(team) ? esc(ivOf(team)) : `<span class="muted">Not written yet. Write it in tab 3.</span>`}</div>
+      <span class="muted small">Vulnerability below is rated in this situation.</span></div>
     <p class="muted small" style="margin:0 0 10px">Only stake-holding participants (A) in the ${esc(a.name)} map are rated: how far does the situation unsettle the way it keeps itself going? Listed by degree.</p>
-    ${notYet.length ? `<p class="warn" style="margin:0 0 10px">Not filtered yet (tab 4): ${notYet.map((x) => esc(elCode(x.e) + " " + x.e.name)).join(", ")}</p>` : ""}
-    <div class="ratelist">${cards || `<div class="empty">No A in this map yet. Filter in tab 4.</div>`}</div></div>`;
+    ${notYet.length ? `<p class="warn" style="margin:0 0 10px">Not filtered yet (tab 3): ${notYet.map((x) => esc(elCode(x.e) + " " + x.e.name)).join(", ")}</p>` : ""}
+    <div class="ratelist">${cards || `<div class="empty">No A in this map yet. Filter in tab 3.</div>`}</div></div>`;
 }
 function saveVul(eid, field, value) {
   const e = elById(eid); if (!e) return;
@@ -891,15 +947,15 @@ function renderMatrix(target = $("#view")) {
     const px = X(v.lv) + (j - 1) * 16, py = Y(x.c) + (j - 1) * 14, h = 9;
     g += `<path d="M${px} ${py - h} L${px + h * 1.1} ${py + h * .8} L${px - h * 1.1} ${py + h * .8} Z" fill="#FFF" stroke="${COL.N.stroke}" stroke-width="2.5" stroke-linejoin="round"/><text x="${px > L + PW * 0.65 ? px - 14 : px + 14}" text-anchor="${px > L + PW * 0.65 ? "end" : "start"}" y="${py + 4}" font-size="12" font-weight="600" fill="#1F1F1C" paint-order="stroke" stroke="#F8F7F3" stroke-width="4" stroke-linejoin="round">${esc(elCode(x.e) + " " + x.e.name)}</text>`;
     const pri = v.lv >= 2, whole = x.c >= cs;
-    rows.push(`<tr><td class="code">${esc(placeCode(x.e, vAsm))}</td><td>${esc(x.e.name)}</td><td class="num">${fmt(x.c)}</td><td>${LEVELS[v.lv]}</td><td><span class="pill ${pri ? "crit" : ""}">${pri ? "Priority" : "Lower priority"} · ${whole ? "whole process" : "specific decisions"}</span></td></tr>`);
+    rows.push(`<tr><td class="code">${esc(placeCode(x.e, vAsm))}</td><td>${esc(x.e.name)}</td><td class="num">${fmt(x.c)}</td><td>${LEVELS[v.lv]}</td><td><span class="pill ${pri ? "crit" : ""}" style="white-space:normal">${pri ? "Priority" : "Lower priority"} · ${whole ? "whole process" : "specific decisions"}</span></td></tr>`);
   });
   target.innerHTML = `<div class="mgrid"><div class="card">${head()}
-      <div class="ctl" style="margin-bottom:14px"><span class="lab">Problem situation</span><div class="ivshow">${ivOf(team) ? esc(ivOf(team)) : `<span class="muted">Not written yet. Write it in tab 6.</span>`}</div></div>
+      <div class="ctl" style="margin-bottom:14px"><span class="lab">Problem situation</span><div class="ivshow">${ivOf(team) ? esc(ivOf(team)) : `<span class="muted">Not written yet. Write it in tab 3.</span>`}</div></div>
       ${all.length ? `<p class="muted small" style="margin:0 0 8px">Only A. No one drops off the matrix. Split line: median centrality of A${all.length === 1 ? "; with one A the split means little" : ""}.</p>
       <div class="plot"><svg viewBox="0 0 ${W2} ${H}" role="img" aria-label="Centrality–vulnerability matrix">${g}</svg></div>
-      ${unr.length ? `<div class="unrated"><span class="muted small">Not rated yet · rate in tab 6</span>${unr.map((x) => `<span class="chip">${shapeIcon("N", x.p.voice, 13)}${esc(elCode(x.e) + " " + x.e.name)}</span>`).join("")}</div>` : ""}`
-      : `<div class="empty">No A in this map yet. Filter in tab 4.</div>`}</div>
-    <div class="card"><h2>Stake-holding participants (A)</h2><p class="muted small" style="margin:-6px 0 10px">Centrality from tab 3, vulnerability from tab 6.</p>
+      ${unr.length ? `<div class="unrated"><span class="muted small">Not rated yet · rate in tab 5</span>${unr.map((x) => `<span class="chip">${shapeIcon("N", x.p.voice, 13)}${esc(elCode(x.e) + " " + x.e.name)}</span>`).join("")}</div>` : ""}`
+      : `<div class="empty">No A in this map yet. Filter in tab 3.</div>`}</div>
+    <div class="card"><h2>Stake-holding participants (A)</h2><p class="muted small" style="margin:-6px 0 10px">Centrality from tab 4, vulnerability from tab 5.</p>
       <div class="tablewrap"><table><thead><tr><th>No.</th><th>Participant</th><th class="num">Centrality</th><th>Vulnerability</th><th>Reading</th></tr></thead><tbody>${rows.join("") || `<tr><td colspan="5" class="muted">None</td></tr>`}</tbody></table></div></div></div>`;
 }
 
@@ -921,7 +977,7 @@ function renderRoutes() {
     <p class="muted small" style="margin:-6px 0 12px">Conditions of makeability decide how each takes part, not whether. Humans linked to an A, or named as speaking for it, are possible spokespersons, to be confirmed.</p>
     ${A.length ? `<div class="tablewrap"><table class="ftable"><thead><tr><th>Participant</th><th>Conditions of makeability</th><th>Possible spokespersons</th></tr></thead><tbody>${aRows}</tbody></table></div>` : `<p class="muted">No A in this map yet.</p>`}</div>
   <div class="grid2b"><div class="card"><h2>Co-shaping participants (B)</h2>
-    ${B.length ? B.map((x) => `<div class="rate"><div class="top"><b>${esc(elCode(x.e) + " " + x.e.name)}</b></div><textarea ${pAttr(x.e, "log")} rows="3" placeholder="Iteration log: operation, breakdown, resistance" aria-label="Iteration log, ${esc(x.e.name)}">${esc(x.p.log || "")}</textarea></div>`).join("") : `<p class="muted small">None.</p>`}</div>
+    ${B.length ? B.map((x) => `<div class="rate" style="margin-bottom:10px"><div class="top"><b>${esc(elCode(x.e) + " " + x.e.name)}</b></div><textarea ${pAttr(x.e, "log")} rows="3" placeholder="Iteration log: operation, breakdown, resistance" aria-label="Iteration log, ${esc(x.e.name)}">${esc(x.p.log || "")}</textarea></div>`).join("") : `<p class="muted small">None.</p>`}</div>
   <div class="card"><h2>Mechanisms (C)</h2>
     ${C.length ? C.map((x) => `<div class="rate"><div class="top"><b>${esc(elCode(x.e) + " " + x.e.name)}</b></div><textarea ${pAttr(x.e, "note")} rows="3" placeholder="What it shows and what it leaves out" aria-label="Mechanism note, ${esc(x.e.name)}">${esc(x.p.note || "")}</textarea></div>`).join("") : `<p class="warn">None on the map. No device makes any participant present.</p>`}</div></div>`;
 }
@@ -1068,7 +1124,7 @@ document.addEventListener("pointerup", () => {
     showBanner("The database library did not load. Check the internet connection and reload. To try the page without a database, add <code>?demo</code> to the address.", true);
     return;
   }
-  if (DEMO) showBanner("Demo mode: example data, nothing is saved. Remove <code>?demo</code> from the address to use the real workshop.");
+  if (DEMO) showBanner("Demo mode: example data (xAI Colossus, Memphis, simplified from news reports), nothing is saved. Remove <code>?demo</code> from the address to use the real workshop.");
   store.subscribe((snap) => {
     data = snap;
     if (dragging) return;
